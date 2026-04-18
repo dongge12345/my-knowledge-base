@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ExcelJS图片操作演示</title>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
+</head>
+<body>
+    <input type="file" id="excelFile" accept=".xlsx,.xls">
+    <input type="file" id="imageFile" accept="image/*">
+    <button onclick="processExcel()">处理Excel</button>
+
+    <script>
+        async function processExcel() {
+            // 1. 读取Excel文件
+            const excelFile = document.getElementById('excelFile').files[0];
+            const workbook = new ExcelJS.Workbook();
+            const excelFileBuffer = await excelFile.arrayBuffer()
+            //console.log("excelFileBuffer",excelFileBuffer)
+            await workbook.xlsx.load(excelFileBuffer);
+            
+            const imgRemove = await fetch('https://gw1.alicdn.com/tfscom/tuitui/i1/2209107074432/O1CN01MukGFK1ibuPCNSx8F_!!4611686018427387264-0-item_pic.jpg')
+            const imgRemoveBlob = await imgRemove.blob()
+            //console.log({imgRemove, imgRemoveBlob})
+                // 2. 转换为Base64
+            const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(imgRemoveBlob);
+            });
+            //console.log("base64",base64)
+            // 2. 获取第一个工作表
+            const worksheet = workbook.getWorksheet(1);
+            
+            // // 3. 读取图片文件
+            // const imageFile = document.getElementById('imageFile').files[0];
+            // const imageBase64 = await getBase64(imageFile);
+            
+            // 4. 插入图片到A1单元格
+            const imageId2 = workbook.addImage({
+                base64: base64,
+                extension: 'jpg'
+            });
+
+            // const imageId2 = workbook.addImage({
+            //     buffer: fs.readFileSync('https://gw1.alicdn.com/tfscom/tuitui/i1/2209107074432/O1CN01MukGFK1ibuPCNSx8F_!!4611686018427387264-0-item_pic.jpg'),
+            //     extension: 'jpg',
+            // });
+            
+            worksheet.addImage(imageId2, {
+                tl: { col: 0, row: 0 },
+                br: { col: 1, row: 1 }
+            });
+            //console.log("worksheet",worksheet)
+            // 5. 保存修改后的Excel
+            const buffer = await workbook.xlsx.writeBuffer();
+                //console.log({buffer})
+                const blob = new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'example.xlsx';
+                a.click();
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+    </script>
+</body>
+</html>

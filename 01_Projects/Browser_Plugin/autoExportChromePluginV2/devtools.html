@@ -1,0 +1,32 @@
+requestData = new Map();
+
+chrome.webRequest.onBeforeRequest.addListener(
+  details => {
+    const requestId = details.requestId;
+    requestData.set(requestId, {
+      url: details.url,
+      method: details.method,
+      startTime: Date.now(),
+      requestHeaders: details.requestHeaders
+    });
+  },
+  { urls: ["<all_urls>"] }
+);
+
+chrome.webRequest.onCompleted.addListener(
+  details => {
+    const requestId = details.requestId;
+    if (requestData.has(requestId)) {
+      const data = requestData.get(requestId);
+      data.statusCode = details.statusCode;
+      data.responseTime = Date.now() - data.startTime;
+      data.responseHeaders = details.responseHeaders;
+      
+      chrome.runtime.sendMessage({
+        type: "REQUEST_COMPLETED",
+        data: data
+      });
+    }
+  },
+  { urls: ["<all_urls>"] }
+);

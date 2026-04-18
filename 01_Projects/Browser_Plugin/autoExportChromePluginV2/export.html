@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Excel文件处理器</title>
+    <link crossorigin="anonymous" rel="icon" href="./icons/cursor.jpg" />
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
+    <style>
+      /* 全局样式重置 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+      }
+
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        font-size: 28px;
+        text-align: center;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #3498db;
+      }
+
+      h3 {
+        color: #34495e;
+        margin-bottom: 15px;
+        font-size: 20px;
+      }
+
+      /* 文件输入区域 */
+      .file-input-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 30px;
+        align-items: center;
+      }
+
+      .file-input-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .file-input-item label {
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+      }
+
+      input[type="file"],
+      input[type="text"] {
+        padding: 10px;
+        border: 2px solid #e1e8ed;
+        border-radius: 6px;
+        background-color: #fafbfc;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+      }
+
+      input[type="file"]:hover,
+      input[type="text"]:hover {
+        border-color: #3498db;
+        background-color: #fff;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
+
+      /* 按钮样式 */
+      .btn {
+        padding: 12px 24px;
+        margin: 5px;
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      #exportBtn {
+        background-color: #27ae60;
+        color: white;
+      }
+
+      #exportBtn:hover:not(:disabled) {
+        background-color: #229954;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+      }
+
+      #modifyBtn {
+        background-color: #3498db;
+        color: white;
+      }
+
+      #modifyBtn:hover:not(:disabled) {
+        background-color: #2980b9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* 修改内容区域 */
+      .modify-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #3498db;
+      }
+
+      textarea {
+        width: 100%;
+        height: 120px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        padding: 15px;
+        border: 2px solid #e1e8ed;
+        border-radius: 6px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 14px;
+        resize: vertical;
+        transition: border-color 0.3s ease;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
+
+      textarea::placeholder {
+        color: #95a5a6;
+      }
+
+      /* 表格容器 */
+      #tableContainer {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 600px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        margin-top: 20px;
+      }
+
+      /* 表格样式 */
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background-color: white;
+      }
+
+      th,
+      td {
+        border: 1px solid #e1e8ed;
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 14px;
+      }
+
+      th {
+        background-color: #34495e;
+        color: white;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      tr:hover {
+        background-color: #e8f4f8;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .container {
+          padding: 20px;
+        }
+
+        .file-input-group {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .btn {
+          width: 100%;
+          margin: 5px 0;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        h3 {
+          font-size: 18px;
+        }
+      }
+
+      /* 加载指示器样式 */
+      .loading-spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-left: 8px;
+      }
+
+      .btn.loading .loading-spinner {
+        display: inline-block;
+      }
+
+      .btn.loading .btn-text {
+        visibility: hidden;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* 滚动条样式 */
+      #tableContainer::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      #tableContainer::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      #tableContainer::-webkit-scrollbar-thumb {
+        background: #c1c8cd;
+        border-radius: 4px;
+      }
+
+      #tableContainer::-webkit-scrollbar-thumb:hover {
+        background: #a8b2b9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Excel文件处理器</h1>
+      <div class="file-input-group">
+        <div class="file-input-item">
+          <label name="初始excel" for="fileInput">初始excel：</label>
+          <input type="file" name="初始excel" id="fileInput" accept=".xlsx, .xls" />
+        </div>
+        <div class="file-input-item">
+          <label name="初始json数据" for="fileInputData">初始json数据：</label>
+          <input type="file" name="初始json数据" id="fileInputData" accept=".json" />
+        </div>
+        <div class="file-input-item">
+          <label name="月份" for="monthInput">月份：</label>
+          <input type="text" name="月份" id="monthInput" placeholder="如：1月、11月" />
+        </div>
+        <button id="exportBtn" class="btn" disabled>
+          <span class="btn-text">导出Excel</span>
+          <span class="loading-spinner"></span>
+        </button>
+      </div>
+      <div class="modify-section">
+        <h3>修改内容</h3>
+        <textarea
+          id="modifyText"
+          placeholder="输入要修改的内容，格式为：A1=新值,B2=新值"
+        ></textarea>
+        <button id="modifyBtn" class="btn" disabled>应用修改</button>
+      </div>
+      <div id="tableContainer"></div>
+    </div>
+
+    <script>
+      // 全局变量
+      let workbook = null;         // 当前加载的Excel工作簿
+      let currentSheetName = null; // 当前选中的工作表名称
+
+      /**
+       * 在对象中查找对应值的键名
+       * @param {Object} data - 要搜索的对象
+       * @param {string} searchValue - 要查找的值
+       * @returns {string|null} - 找到的键名或null
+       */
+      function findKeyByValue(data, searchValue) {
+        for (const key in data) {
+          if (data[key]?.v == searchValue) {
+            return key;
+          }
+        }
+        return null;
+      }
+
+      /**
+       * 格式化时间戳为日期字符串
+       * @param {number} timestamp - 时间戳
+       * @returns {string} - 格式化后的日期字符串 (YYYY-MM-DD)
+       */
+      function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      /**
+       * 将列字母转换为0-based索引
+       * @param {string} letter - 列字母 (如 "A", "B", "AA")
+       * @returns {number} - 列索引
+       */
+      function letterToColumn(letter) {
+        let column = 0;
+        for (let i = 0; i < letter.length; i++) {
+          column = column * 26 + (letter.charCodeAt(i) - 64);
+        }
+        return column - 1;
+      }
+
+      /**
+       * 将文件转换为Base64编码
+       * @param {File} file - 要转换的文件
+       * @returns {Promise<string>} - Base64编码字符串
+       */
+      function getBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result.split(",")[1]);
+          reader.onerror = (error) => reject(error);
+        });
+      }
+
+      /**
+       * 下载JSON数据
+       * @param {Array} arrStore - 要下载的数据数组
+       */
+      function writeActionDebounce(arrStore) {
+        const blob = new Blob([JSON.stringify(arrStore)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `数据-${formatTimestamp(Date.now())}.json`;
+        a.click();
+      }
+
+      /**
+       * 显示指定工作表的内容
+       * @param {string} sheetName - 工作表名称
+       */
+      function displaySheet(sheetName) {
+        const worksheet = workbook.Sheets[sheetName];
+        const html = XLSX.utils.sheet_to_html(worksheet);
+        document.getElementById("tableContainer").innerHTML = html;
+      }
+
+      // 事件监听器 - 初始Excel文件上传
+      document.getElementById("fileInput").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const data = new Uint8Array(e.target.result);
+          workbook = XLSX.read(data, { type: "array" });
+          currentSheetName = workbook.SheetNames[0];
+          displaySheet(currentSheetName);
+          
+          // 启用按钮
+          document.getElementById("exportBtn").disabled = false;
+          document.getElementById("modifyBtn").disabled = false;
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      // 事件监听器 - JSON数据文件上传
+      document.getElementById("fileInputData").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const data = new Uint8Array(e.target.result);
+          const decoder = new TextDecoder();
+          const jsonString = decoder.decode(data);
+          const jsonObj = JSON.parse(jsonString);
+
+          const worksheet = workbook.Sheets[currentSheetName];
+          
+          // 设置表头
+          worksheet["AE1"] = { v: "时间", t: "s" };
+          worksheet["AF1"] = { v: "图片", t: "s" };
+          worksheet["AG1"] = { v: "达人", t: "s" };
+          
+          // 填充数据
+          jsonObj.forEach(item => {
+            let key = findKeyByValue(worksheet, item.contentId);
+            if (key) {
+              [
+                { pre: "AE", k: "releaseTime", title: "时间" },
+                { pre: "AF", k: "coverUrl", title: "图片" },
+                { pre: "AG", k: "nickName", title: "达人" },
+              ].forEach(data => {
+                // 提取行号并组合新的单元格地址
+                const rowNum = key.match(/\d+/g);
+                const cellKey = data.pre + rowNum;
+                
+                // 设置单元格值
+                worksheet[cellKey] = { v: item[data.k], t: "s" };
+              });
+            }
+          });
+          
+          // 更新表格显示
+          displaySheet(currentSheetName);
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      // 事件监听器 - 应用修改
+      document.getElementById("modifyBtn").addEventListener("click", function () {
+        if (!workbook) return;
+
+        const modifyText = document.getElementById("modifyText").value.trim();
+        if (!modifyText) return;
+
+        const modifications = modifyText.split(",").map(item => item.trim());
+        const worksheet = workbook.Sheets[currentSheetName];
+
+        modifications.forEach(mod => {
+          const [cellRef, value] = mod.split("=").map(item => item.trim());
+          if (cellRef && value) {
+            const cellAddress = XLSX.utils.encode_cell({
+              c: cellRef.charCodeAt(0) - 65,
+              r: parseInt(cellRef.substring(1)) - 1,
+            });
+            worksheet[cellAddress] = { v: value, t: "s" };
+          }
+        });
+
+        displaySheet(currentSheetName);
+        alert("修改已应用！");
+      });
+
+      // 事件监听器 - 导出Excel
+      document.getElementById("exportBtn").addEventListener("click", async function () {
+        if (!workbook) return;
+        
+        // 显示加载状态
+        const exportBtn = this;
+        exportBtn.classList.add('loading');
+        exportBtn.disabled = true;
+
+        try {
+          // 将SheetJS工作簿转换为ExcelJS可用的buffer
+          const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+          });
+
+          const workbookImg = new ExcelJS.Workbook();
+          await workbookImg.xlsx.load(excelBuffer);
+          
+          const worksheet = workbookImg.getWorksheet(1);
+          const totalRows = worksheet.rowCount;
+          
+          // 处理图片插入
+          for(let i = 2; i <= totalRows; i++){
+              const imgUrl = worksheet.getCell(`AF${i}`).value;
+              worksheet.getCell(`AF${i}`).value = "";
+              
+              if(imgUrl){
+                  try {
+                      // 下载图片并转换为Base64
+                      const imgResponse = await fetch(imgUrl);
+                      const imgBlob = await imgResponse.blob();
+                      const base64 = await new Promise((resolve) => {
+                          const reader = new FileReader();
+                          reader.onload = () => resolve(reader.result.split(',')[1]);
+                          reader.readAsDataURL(imgBlob);
+                      });
+                      
+                      // 提取图片扩展名
+                      const match = imgUrl.match(/(?:\.([^.]*))$/);
+                      const imgSuffix = match ? `${match[1]}` : null;
+                      
+                      // 添加图片到工作簿
+                      const imageId = workbookImg.addImage({
+                          base64: base64,
+                          extension: imgSuffix
+                      });
+                      
+                      // 在指定位置插入图片
+                      worksheet.addImage(imageId, {
+                          tl: { col: 32-1, row: i-1 },
+                          br: { col: 32, row: i },
+                          editAs: 'oneCell',
+                          ext: { width: 500, height: 200 }
+                      });
+                  } catch (error) {
+                      console.error(`处理图片失败 (行 ${i}):`, error);
+                  }
+              }
+          }
+          
+          // 生成最终文件并下载
+          const buffer = await workbookImg.xlsx.writeBuffer();
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          
+          // 获取用户输入的月份并生成文件名
+          const monthInput = document.getElementById('monthInput');
+          const month = monthInput.value.trim();
+          const fileName = month ? `${month}${month.includes('月') ? '' : '月'}月度汇总.xlsx` : '月度汇总.xlsx';
+          
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          
+        } catch (error) {
+          console.error('导出Excel时发生错误:', error);
+          alert('导出Excel时发生错误，请重试');
+        } finally {
+          // 隐藏加载状态
+          exportBtn.classList.remove('loading');
+          exportBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

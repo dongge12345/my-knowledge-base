@@ -1,0 +1,27 @@
+site_name: Personal Knowledge Base
+site_description: Personal knowledge base published with GitHub Pages.
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Catalog: _generated/index.md
+  - Setup: setup.md

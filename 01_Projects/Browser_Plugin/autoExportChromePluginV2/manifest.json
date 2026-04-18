@@ -1,0 +1,36 @@
+
+{
+    "manifest_version": 3,
+    "name": "江博士书包天猫官方数据统计插件",
+    "version": "1.0",
+    "description": "Custom network request monitoring tool",
+    "permissions": [
+      "webRequest",
+      "storage",
+      "devtools"
+    ],
+    "host_permissions": ["*://*/*"],
+    "devtools_page": "devtools.html",
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icons/cursor.jpg",
+        "48": "icons/cursor.jpg",
+        "128": "icons/cursor.jpg"
+      }
+    },
+    "icons": {
+      "16": "icons/cursor.jpg",
+      "48": "icons/cursor.jpg",
+      "128": "icons/cursor.jpg"
+    },
+    "content_scripts": [{
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }]
+  }
+  

@@ -1,0 +1,131 @@
+# 前端求职与学习全局图
+
+- 简历现状
+  - 已明确方向
+    - Vue3
+    - Vite
+    - TypeScript
+    - Rollup
+    - 工程化理解
+  - 已有项目载体
+    - 最小实验场
+    - TS 纯函数练习
+    - Vue3 Composition API 示例
+    - Vite 开发态与构建态实验
+  - 当前可写进简历的能力
+    - 能搭建 Vue3 + Vite 项目
+    - 理解 ESM 与 HMR 基本机制
+    - 理解 Vite dev 与 Rollup build 的分工
+    - 能写基础 TS 类型与工具类型
+    - 能实现简单手写路由
+  - 目前简历短板
+    - 缺少完整业务项目描述
+    - 缺少标准状态管理项目经验
+    - 缺少 vue-router 正式使用经验
+    - 缺少部署与生产环境配置经验
+    - 缺少性能优化与组件封装案例
+
+- 已学内容
+  - Vue3
+    - Composition API
+    - composables
+    - setup 组织方式
+    - Vue2 vs Vue3 差异
+  - Vite
+    - index.html 作为开发入口
+    - 基于 ESM 的按需加载
+    - WebSocket + HMR
+    - vite build 底层走 Rollup
+    - build.rollupOptions
+  - Rollup
+    - input / output
+    - plugin 基本职责
+    - manualChunks
+    - vendor 拆包
+  - TypeScript
+    - interface
+    - 联合类型
+    - Omit / Pick / Partial / Record
+    - unknown + 类型守卫
+    - 不可变更新
+    - vue-tsc
+    - tsconfig 基本项
+  - 路由
+    - hash 路由原理
+    - history 路由原理
+    - 本地开发支持 history
+    - 生产环境需要回退到 index.html
+  - 工程认知
+    - Tree Shaking 基础理解
+    - ESM 静态分析
+    - TS 不直接负责打包输出
+
+- 当前能做的事
+  - 写基础 Vue3 页面
+  - 拆 composables
+  - 写基础 TS 业务函数
+  - 看懂 Vite 开发态资源请求
+  - 理解 HMR 不是整页刷新
+  - 做简单构建配置实验
+
+- 待学重点
+  - Vue3 核心
+    - props / emits
+    - watch / watchEffect
+    - 生命周期
+    - slots
+    - provide / inject
+  - Vue Router
+    - createRouter
+    - history 模式正式配置
+    - 路由守卫
+    - 动态路由
+    - 懒加载路由
+  - Pinia
+    - store 定义
+    - state / getters / actions
+    - store 拆分
+  - Vite 工程化
+    - alias
+    - env
+    - proxy
+    - 静态资源处理
+    - 常见插件
+  - 组件能力
+    - 组件通信
+    - 表单组件
+    - 通用组件封装
+    - 组件复用边界
+  - 项目能力
+    - 权限
+    - 列表 / 表单 / 详情页
+    - 接口联调
+    - 错误处理
+    - 页面级状态管理
+  - 上线部署
+    - history 回退配置
+    - Nginx
+    - 静态资源缓存
+    - sourcemap 使用
+
+- 学习阶段判断
+  - Vue3
+    - 基础已入门
+    - 业务开发未完全打通
+  - Vite
+    - 原理已入门
+    - 工程配置还需系统补齐
+  - TS
+    - 基础语法已过关
+    - 业务建模仍需练习
+  - 求职准备
+    - 适合继续堆项目
+    - 暂不适合只靠理论投递
+
+- 下一阶段行动
+  - 先补 vue-router
+  - 再补 Pinia
+  - 做一个中小型完整项目
+  - 给项目写项目描述
+  - 最后回填简历
+

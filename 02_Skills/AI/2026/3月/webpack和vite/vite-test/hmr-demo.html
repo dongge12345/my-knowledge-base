@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>最小 HMR 实验</title>
+</head>
+<body>
+  <h1>最小 HMR 实验</h1>
+  <p>按下面提示修改文件，观察页面在不重启服务的情况下如何更新。</p>
+  <ol>
+    <li>自接收：修改 <code>hmr/self-message.js</code></li>
+    <li>依赖接收：修改 <code>hmr/dep-source.js</code></li>
+    <li>继续向上冒泡：修改 <code>hmr/invalidate-boundary.js</code>，切换 <code>shouldInvalidate</code></li>
+  </ol>
+  <div id="app"></div>
+  <script type="module" src="/hmr/main.js"></script>
+</body>
+</html>

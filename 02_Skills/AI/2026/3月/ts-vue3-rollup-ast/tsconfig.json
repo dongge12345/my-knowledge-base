@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    // 目标语法版本（影响 TS 转译后 JS 的语法级别）。
+    // 这里用 ES2019，兼顾现代浏览器与一定兼容性。
+    // 注意：这不是“打包目标浏览器清单”，只是 TS 语法降级参考。
+    "target": "ES2019",
+    // 模块语法输出形式。
+    // 设为 ESNext 表示保留 import/export，不在 TS 阶段改成 commonjs。
+    // 这样能让 Vite/Rollup 正常做树摇（tree-shaking）和分包。
+    "module": "ESNext",
+    // 模块解析策略。
+    // Bundler 模式会更贴近 Vite/Rollup 的解析行为（例如 package exports）。
+    // 在前端项目里通常比 Node 解析模式更合适。
+    "moduleResolution": "Bundler",
+    // 提供类型库：ES2019 内置对象 + 浏览器 DOM API。
+    // 没有 DOM 的话，window/document 等会报类型错误。
+    "lib": ["ES2019", "DOM"],
+    // JSX 相关设置；Vue 项目一般保留，不主动转换 JSX。
+    "jsx": "preserve",
+    // 严格模式总开关（推荐保持 true）。
+    // 打开后会启用一组更严格的检查，尽早暴露潜在 bug。
+    "strict": true,
+    // 生成 sourcemap（用于调试映射回源码）。
+    // 在本项目中主要由 Vite/Rollup 输出 sourcemap；这里保持一致即可。
+    "sourceMap": true,
+    // 允许默认导入 CommonJS 包（改善与历史包的互操作体验）。
+    "esModuleInterop": true,
+    // 跳过第三方 d.ts 的类型检查，提升速度并减少外部库噪音报错。
+    // 代价是第三方类型问题不会第一时间暴露。
+    "skipLibCheck": true,
+    // 强制路径大小写一致（跨平台避免“Windows 好用，Linux 挂掉”）。
+    "forceConsistentCasingInFileNames": true,
+    // 不输出编译产物，只做类型检查。
+    // 这个项目由 Vite/Rollup 负责真正产物输出，tsc 只负责“审查”。
+    "noEmit": true,
+    // 注入全局类型：
+    // - node: 提供 Node 环境类型（配置文件/脚本常用）
+    // - vite/client: 提供 import.meta.env / import.meta.hot 等 Vite 类型
+    "types": ["node", "vite/client"]
+  },
+  // 指定类型检查范围：
+  // - .ts 业务代码
+  // - .vue 单文件组件（配合 vue-tsc 才会真正检查 <script lang="ts">）
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}

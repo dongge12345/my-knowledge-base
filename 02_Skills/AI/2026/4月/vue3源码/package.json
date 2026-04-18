@@ -1,0 +1,13 @@
+{
+  "name": "vue3-source-fast-track",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Vue3 高频源码考点速学练习场",
+  "type": "commonjs",
+  "scripts": {
+    "study:reactivity": "node exercises/reactivity/run.js",
+    "study:diff": "node exercises/diff/run.js",
+    "study:router": "node exercises/router/run.js",
+    "study:all": "node scripts/run-all.js"
+  }
+}

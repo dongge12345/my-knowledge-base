@@ -1,0 +1,18 @@
+{
+  "materials": [
+    {
+      "name": "@demo/button",
+      "source": "npm",
+      "version": "^1.0.0",
+      "description": "示例按钮物料"
+    }
+  ],
+  "resourceDirs": [
+    "src/components",
+    "materials"
+  ],
+  "schema": {
+    "outputDir": ".lowcode-assistant/schema",
+    "docsDir": ".lowcode-assistant/docs"
+  }
+}

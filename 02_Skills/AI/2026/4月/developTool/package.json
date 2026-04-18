@@ -1,0 +1,9 @@
+{
+  "name": "devtools-interview-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A self-contained frontend lab for learning Chrome DevTools performance and memory debugging.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

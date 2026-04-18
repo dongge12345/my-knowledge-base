@@ -1,0 +1,31 @@
+{
+  "name": "webpack-test",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "dev": "webpack serve  --config webpack/webpack.dev.js",
+    "build": "webpack --config webpack/webpack.prod.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vue": "3.5.31",
+    "vue-loader": "17.4.2",
+    "@vue/compiler-sfc": "3.5.31"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.0",
+    "@babel/preset-env": "7.29.2",
+    "babel-loader": "10.1.1",
+    "gojs": "3.1.8",
+    "html-webpack-plugin": "5.6.6",
+    "ts-loader": "9.5.4",
+    "typescript": "6.0.2",
+    "@babel/preset-typescript": "7.28.5",
+    "webpack": "5.105.4",
+    "webpack-cli": "7.0.2",
+    "webpack-dev-server": "5.2.3"
+  }
+}

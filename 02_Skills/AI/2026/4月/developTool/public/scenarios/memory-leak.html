@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>内存泄漏场景</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="scenario-shell">
+      <nav class="page-nav">
+        <a href="../index.html">首页</a>
+        <a href="../learn/devtools.html">工具与指标速查</a>
+        <a href="./slow-first-screen.html?mode=bad">首屏慢场景</a>
+      </nav>
+
+      <header class="scenario-header">
+        <span class="mode-badge" id="mode-label">问题版</span>
+        <h1>内存泄漏排查实验室</h1>
+        <p class="header-copy">
+          这个页面会反复挂载和卸载一个模拟组件。问题版故意不清理事件监听、定时器和大对象引用；修复版会在卸载时完整回收。你可以用 Memory 面板和快照对比。
+        </p>
+        <div class="mode-switch">
+          <a class="button button-secondary" href="./memory-leak.html?mode=bad">打开问题版</a>
+          <a class="button button-success" href="./memory-leak.html?mode=good">打开修复版</a>
+        </div>
+      </header>
+
+      <main class="lab-grid">
+        <section class="lab-card">
+          <h2>操作区</h2>
+          <p>重复点击挂载和卸载，或者直接跑几轮自动循环，再去 Memory 做 Heap Snapshot / Allocation Timeline。</p>
+          <div class="header-actions">
+            <button class="button button-primary" id="mount-btn" type="button">挂载组件</button>
+            <button class="button button-danger" id="unmount-btn" type="button">卸载组件</button>
+            <button class="button button-secondary" id="cycle-btn" type="button">自动循环 6 次</button>
+          </div>
+
+          <div class="memory-console">
+            <div class="status-grid" id="status-grid"></div>
+            <div class="memory-stage" id="memory-stage"></div>
+          </div>
+        </section>
+
+        <aside class="timeline-card">
+          <h2>你应该怎么查</h2>
+          <ol class="plain-list ordered">
+            <li>打开 Memory，先做一次基线快照</li>
+            <li>反复执行挂载和卸载，或者直接自动循环</li>
+            <li>再做第二次、第三次快照，对比对象数量是否持续上涨</li>
+            <li>看有没有 Detached DOM、Array、Closure、EventListener 持续残留</li>
+            <li>切到修复版，重复同样操作，验证对象是否能回收</li>
+          </ol>
+
+          <div class="callout-danger" id="mode-hint"></div>
+
+          <h3>实验日志</h3>
+          <ul class="log-list" id="log-list"></ul>
+        </aside>
+      </main>
+    </div>
+
+    <script src="./memory-leak.js"></script>
+  </body>
+</html>

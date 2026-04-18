@@ -1,0 +1,214 @@
+# 当前简历与学习全局思维导图
+
+> 用途：给当前阶段一个“我是谁、我在学什么、已经学到哪、接下来补什么”的全局视图。  
+> 说明：简历部分仅基于当前项目与对话中已知信息整理；没有明确材料的地方先标记为“待补充”。
+
+---
+
+## 思维导图
+
+```md
+# 当前简历与学习全局视图
+- 1. 当前简历情况
+  - 1.1 当前已知定位
+    - 前端方向
+    - 学习主线以 Vue2 + Webpack 为核心
+    - 目标项目类型偏中后台前端 / 平台型前端 / 工程化前端
+    - 当前学习方式偏“项目驱动 + 全链路理解 + 可迁移到真实项目”
+  - 1.2 当前已知优势
+    - 已经开始形成运行链路思维，而不是只记 API
+    - 能从入口、组件实例、响应式、render、patch、路由、Vuex 串完整链路
+    - 已有真实教学项目可支撑讲解与演示
+    - 已开始建立工程化判断能力：loader / plugin / 内置资源模块 / 核心配置能力
+  - 1.3 当前简历可强调的项目内容
+    - Vue2 教学型项目
+    - Webpack 工程化拆分（common / dev / prod）
+    - 路由懒加载、按需加载、分包、runtimeChunk、splitChunks
+    - Vuex 联动演示
+    - props 修改边界演示
+    - 组件版 v-model 演示
+    - Markdown 资源导入实验
+  - 1.4 当前简历短板 / 待补充
+    - 真实项目经历如何表述：待补充
+    - 求职方向优先级（Vue2 维护岗 / 中后台前端 / 工程化方向）：待补充
+    - 技术栈广度（React / Vue3 / TS / Node / 工程平台）：待补充
+    - 项目成果量化（性能优化、包体积、开发效率提升）：待补充
+    - 面试型简历话术：待补充
+
+- 2. Vue2 学习情况
+  - 2.1 已学核心主干
+    - 应用启动链路
+      - main.js
+      - new Vue
+      - render
+      - App.vue
+      - router-view
+    - 组件实例建立
+      - data / methods / computed / watch 挂到实例
+      - data 为什么必须是函数
+      - data 为什么能通过 this.xxx 访问
+    - 响应式系统
+      - Object.defineProperty
+      - Dep / Watcher / observe / defineReactive
+      - 对象、数组、$set、__ob__.dep
+      - render watcher / computed watcher / user watcher
+    - render / patch / diff
+      - 模板到 render
+      - render 时依赖收集
+      - patch 的意义
+      - 列表 diff 与 key
+    - 生命周期
+      - beforeCreate / created
+      - beforeMount / mounted
+      - beforeUpdate / updated
+      - beforeDestroy / destroyed
+      - mounted vs nextTick
+    - 组件通信
+      - props
+      - $emit
+      - provide / inject
+      - mixin
+      - props 修改边界
+    - 模板系统
+      - v-if / v-show
+      - v-for / key
+      - v-bind / v-on
+      - v-model
+      - 组件版 v-model
+    - 插槽
+      - 默认插槽
+      - 具名插槽
+      - 作用域插槽
+    - 路由
+      - $router / $route
+      - history 模式
+      - params / query
+      - push / replace / back
+      - path / name
+      - 导航守卫
+      - beforeRouteEnter / beforeRouteUpdate / beforeRouteLeave
+    - keep-alive
+      - 动态组件
+      - activated / deactivated
+      - 路由缓存与 meta.keepAlive
+    - Vuex
+      - state / getters / mutations / actions
+      - dispatch -> action -> commit -> mutation -> 组件更新
+      - mapState / mapGetters / mapMutations / mapActions
+      - modules / namespaced
+  - 2.2 当前已形成的关键认知
+    - create 阶段：搭系统
+    - render 阶段：收依赖
+    - update 阶段：重新执行并 patch
+    - 真正的响应式源主要是 data / props / state
+    - computed / getters 是派生层，不是最终响应式源头
+    - 父组件不会直接命令子组件刷新，而是通过新的 props 驱动子组件进入更新链路
+    - 父 beforeUpdate -> 子 beforeUpdate -> 子 updated -> 父 updated
+    - 组件版 v-model 本质上就是“父传 value，子发 input”
+    - props 传值，slot 传结构，作用域插槽是“子供数据、父定结构”
+  - 2.3 Vue2 还待补的内容
+    - 高频进阶
+      - 常见性能点与易踩坑
+      - 中后台高频套路
+      - 组件抽象经验
+    - 补充专题
+      - transition / transition-group
+      - 自定义指令
+      - 过滤器（Vue2 老项目常见）
+      - 异步组件
+      - Vue2 -> Vue3 迁移视角
+      - SSR 只需概念了解
+
+- 3. Webpack / 工程化学习情况
+  - 3.1 已学部分
+    - 构建总链路
+      - npm run build
+      - webpack-cli 读取配置
+      - merge(common + prod/dev)
+      - 从 entry 建依赖图
+      - rules 处理模块
+      - plugins 扩展流程
+      - optimization 做优化
+      - output 落地产物
+    - 责任分层
+      - common：项目能不能构建
+      - dev：本地好不好开发
+      - prod：上线产物好不好
+    - 判断框架
+      - 文件内容怎么转：loader / asset modules
+      - 构建流程怎么扩：plugin
+      - 核心配置能力：entry / output / resolve / devServer / optimization
+    - 样式处理链
+      - less-loader
+      - postcss-loader
+      - css-loader
+      - style-loader
+      - MiniCssExtractPlugin.loader
+    - 资源模块
+      - asset
+      - asset/resource
+      - asset/source
+    - 生产优化概念
+      - HtmlWebpackPlugin
+      - TerserPlugin
+      - CssMinimizerPlugin
+      - splitChunks
+      - runtimeChunk
+    - 实验
+      - 路由懒加载页面分包
+      - 重模块按需加载
+      - Markdown 原文导入展示
+  - 3.2 当前已形成的关键认知
+    - Webpack 本质：从入口出发，分析依赖图，按规则转换模块，按插件扩展流程，最终产出浏览器可运行资源
+    - common 管“项目能不能构建”，dev 管“本地好不好开发”，prod 管“上线产物好不好”
+    - asset/source = 文件原文字符串导出
+    - style-loader 适合开发，因为样式作为模块参与 HMR 更新
+    - HtmlWebpackPlugin 开发和生产都会工作，只是开发态产物通常在内存里
+    - runtimeChunk 拆的是 webpack 自己的运行时代码，不是业务代码
+    - plugin 的定义看“是否扩展构建流程”，不是看“是不是外部包”
+  - 3.3 Webpack 还待系统讲完的内容
+    - entry / output / resolve 骨架配置细讲
+    - module.rules 与 loader 链从右到左执行
+    - plugins 的生命周期视角
+    - devServer 体系
+      - proxy
+      - HMR
+      - historyApiFallback
+      - 内存产物
+    - optimization 体系
+      - splitChunks
+      - runtimeChunk
+      - minimizer
+      - 缓存策略
+    - 再做 1~2 个特殊资源实验
+      - Markdown 解析成 HTML
+      - 其他文本/结构化资源
+
+- 4. 当前学习优先级
+  - 4.1 最高优先级
+    - Webpack / 工程化系统吃透
+  - 4.2 第二优先级
+    - Vue2 高频进阶与常见坑
+  - 4.3 第三优先级
+    - Vue2 补充专题
+  - 4.4 第四优先级
+    - 简历项目表述、求职叙事、面试话术整理
+
+- 5. 当前最适合的下一步
+  - 5.1 学习上
+    - 继续 webpack：entry / output / resolve -> rules / loader 链 -> plugins -> devServer -> optimization
+    - 之后回到 Vue2 高频进阶
+  - 5.2 简历上
+    - 把当前教学项目整理成“可写进简历/可面试讲解”的项目表达
+    - 补充个人求职方向、已做项目、技术栈边界、成果量化
+```
+
+---
+
+## 使用建议
+
+- 这份文档适合做“总览导航”，不适合代替专题笔记。
+- 后续每学完一块，可以把对应节点从“待补充/待学”移动到“已掌握”。
+- 如果你愿意，下一步可以继续补一份：
+  - `简历版本思维导图`
+  - 专门从“求职方向 / 项目卖点 / 面试叙事”角度整理

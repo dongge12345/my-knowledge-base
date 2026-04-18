@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>工具与指标速查</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="scenario-shell">
+      <nav class="page-nav">
+        <a href="../index.html">首页</a>
+        <a href="../scenarios/slow-first-screen.html?mode=bad">首屏慢场景</a>
+        <a href="../scenarios/memory-leak.html?mode=bad">内存泄漏场景</a>
+      </nav>
+
+      <header class="learn-header">
+        <span class="eyebrow">学习区</span>
+        <h1>先搞清楚每个面板解决什么问题，再开始实战。</h1>
+        <p class="header-copy">
+          面试里最怕的不是不会优化，而是说不出“先看哪个面板、再看哪个指标、最后怎么验证”。这一页是你的速查表。
+        </p>
+      </header>
+
+      <main class="tool-grid">
+        <article class="tool-card">
+          <span class="pill">Network</span>
+          <h2>看资源和请求链路</h2>
+          <ul>
+            <li>首屏慢先看请求数量、体积、缓存、阻塞链</li>
+            <li>重点关注 Waterfall、Size、Time、Initiator、Priority</li>
+            <li>实操时先勾 Disable cache，再切 Slow 3G 或 Fast 4G</li>
+          </ul>
+        </article>
+        <article class="tool-card">
+          <span class="pill">Performance</span>
+          <h2>看主线程在忙什么</h2>
+          <ul>
+            <li>录制刷新过程，确认是网络慢还是 JS 长任务慢</li>
+            <li>重点看 Screenshots、Main、Long Tasks、Bottom-up、Call tree</li>
+            <li>首屏问题核心指标常看 FCP、LCP</li>
+          </ul>
+        </article>
+        <article class="tool-card">
+          <span class="pill">Memory</span>
+          <h2>看对象为什么没释放</h2>
+          <ul>
+            <li>Heap Snapshot 适合做“某一刻”的对象盘点</li>
+            <li>Allocation Timeline 适合观察一段用户操作期间的增长和回收</li>
+            <li>特别留意 Detached DOM、定时器、监听器、闭包和全局缓存</li>
+          </ul>
+        </article>
+        <article class="tool-card">
+          <span class="pill">Lighthouse</span>
+          <h2>快速体检，不是最终根因</h2>
+          <ul>
+            <li>适合快速发现性能和最佳实践问题</li>
+            <li>看完建议后，还是要回到 Performance / Network 验证</li>
+            <li>TBT 在 Lighthouse 里会很常见</li>
+          </ul>
+        </article>
+        <article class="tool-card">
+          <span class="pill">Coverage</span>
+          <h2>看加载了多少没用到</h2>
+          <ul>
+            <li>适合发现首屏引入的无用 CSS / JS</li>
+            <li>看到利用率很低时，可以联想到拆包、懒加载、按路由加载</li>
+            <li>它是辅助工具，经常和 Performance 一起看</li>
+          </ul>
+        </article>
+        <article class="tool-card">
+          <span class="pill">面试回答</span>
+          <h2>一句话顺序</h2>
+          <ul>
+            <li>首屏慢：先 Network，再 Performance，必要时加 Coverage 和 Lighthouse</li>
+            <li>内存泄漏：先 Memory 做快照和时间线，再回代码看引用链</li>
+            <li>最后一定要做“修复前后对比验证”</li>
+          </ul>
+        </article>
+      </main>
+
+      <section class="panel-grid">
+        <article class="panel-card">
+          <h2>性能指标速记</h2>
+          <table class="metric-table">
+            <thead>
+              <tr>
+                <th>指标</th>
+                <th>你可以怎么理解</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>FP</td><td>页面第一次有像素出现</td></tr>
+              <tr><td>FCP</td><td>页面第一次有文字、图片等真实内容出现</td></tr>
+              <tr><td>FMP</td><td>历史指标，知道它表示“主要内容出现”即可</td></tr>
+              <tr><td>LCP</td><td>最大首屏内容元素出现的时间，首屏体验重点指标</td></tr>
+              <tr><td>TBT</td><td>FCP 之后被长任务阻塞的总时长</td></tr>
+              <tr><td>TTI</td><td>页面真正稳定可交互的时间</td></tr>
+            </tbody>
+          </table>
+        </article>
+        <article class="panel-card">
+          <h2>这几个概念容易混</h2>
+          <ul class="plain-list">
+            <li>FCP 只代表“有内容了”，不代表“主要内容准备好了”</li>
+            <li>LCP 更贴近用户感知的首屏核心内容</li>
+            <li>TBT 反映的是“页面虽然开始显示了，但主线程还在卡”</li>
+            <li>TTI 更偏向“什么时候终于可以顺畅操作”</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="tip-strip">
+        <h2>怎么把这页内容讲成面试回答</h2>
+        <p>你不需要背很多定义，重点是把“工具负责什么”和“排查顺序”讲清楚。定义只需要说到能指导你下一步判断即可。</p>
+      </section>
+    </div>
+  </body>
+</html>

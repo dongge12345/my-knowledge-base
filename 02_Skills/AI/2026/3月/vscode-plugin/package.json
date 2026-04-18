@@ -1,0 +1,80 @@
+{
+  "name": "lowcode-material-assistant",
+  "displayName": "Lowcode Material Assistant",
+  "description": "VS Code 高开辅助插件：面向低代码物料接入、Schema 生成与配置闭环。",
+  "version": "0.0.1",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:lowcodeAssistant.extractComponentMeta",
+    "onCommand:lowcodeAssistant.generateSchemaAndDocs",
+    "onCommand:lowcodeAssistant.openSchemaDesigner",
+    "onCommand:lowcodeAssistant.installMaterial",
+    "onCommand:lowcodeAssistant.refreshResources"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "lowcodeAssistant.extractComponentMeta",
+        "title": "Lowcode Assistant: 抽取组件元信息"
+      },
+      {
+        "command": "lowcodeAssistant.generateSchemaAndDocs",
+        "title": "Lowcode Assistant: 生成 Schema 与文档"
+      },
+      {
+        "command": "lowcodeAssistant.openSchemaDesigner",
+        "title": "Lowcode Assistant: 打开可视化配置面板"
+      },
+      {
+        "command": "lowcodeAssistant.installMaterial",
+        "title": "Lowcode Assistant: 安装物料"
+      },
+      {
+        "command": "lowcodeAssistant.refreshResources",
+        "title": "Lowcode Assistant: 刷新物料资源"
+      }
+    ],
+    "configuration": {
+      "title": "Lowcode Material Assistant",
+      "properties": {
+        "lowcodeAssistant.configPath": {
+          "type": "string",
+          "default": "lowcode-assistant.config.json",
+          "description": "插件读取的项目配置文件路径。"
+        },
+        "lowcodeAssistant.outputDir": {
+          "type": "string",
+          "default": ".lowcode-assistant",
+          "description": "Schema、文档与索引输出目录。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "npm run build:extension && npm run build:webview",
+    "build:extension": "tsc -p tsconfig.json",
+    "build:webview": "npm --prefix webview-ui run build",
+    "watch": "tsc -w -p tsconfig.json",
+    "watch:webview": "npm --prefix webview-ui run dev",
+    "lint": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
+    "@babel/types": "^7.28.0"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.28.0",
+    "@types/node": "^24.0.0",
+    "@types/vscode": "^1.95.0",
+    "typescript": "^5.8.3"
+  }
+}

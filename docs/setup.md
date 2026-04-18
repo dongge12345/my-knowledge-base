@@ -1,100 +1,100 @@
-# GitHub Pages Setup Guide
+# GitHub Pages 部署说明
 
-This guide picks up from the current repository state and shows the exact steps to get the public knowledge base online.
+这份说明基于当前仓库状态，整理了从本地仓库到公开知识库网站上线的具体步骤。
 
-## What Is Already Prepared
+## 已准备完成的内容
 
-The repository already contains these files:
+仓库里已经包含这些文件：
 
-- `mkdocs.yml`: site configuration
-- `docs/index.md`: site home page
-- `scripts/build_catalog.py`: catalog generator
-- `.github/workflows/deploy-pages.yml`: GitHub Pages workflow
-- `requirements.txt`: Python dependencies for the site build
+- `mkdocs.yml`：站点配置
+- `docs/index.md`：站点首页
+- `scripts/build_catalog.py`：目录与概要生成脚本
+- `.github/workflows/deploy-pages.yml`：GitHub Pages 自动部署工作流
+- `requirements.txt`：站点构建依赖
 
-That means the remaining work is mostly operational: create a new Git repository, push it to GitHub, and enable Pages.
+也就是说，剩下的工作主要是操作层面的：初始化 Git 仓库、推送到 GitHub，并开启 Pages。
 
-## First-Time Publishing Steps
+## 首次发布步骤
 
-### 1. Recreate the local Git repository
+### 1. 在本地重新初始化 Git 仓库
 
-Run these commands in the project root:
+在项目根目录执行：
 
 ```powershell
 git init
 git branch -M main
 git add .
-git commit -m "Initialize personal knowledge base site"
+git commit -m "初始化个人知识库站点"
 ```
 
-### 2. Create the remote repository on GitHub
+### 2. 在 GitHub 创建远程仓库
 
-Create a new public repository on GitHub.
+在 GitHub 上新建一个公开仓库。
 
-Recommended settings:
+建议设置：
 
-- Repository name: `paipaiHighLevel`
-- Visibility: `Public`
-- Do not initialize with `README`, `.gitignore`, or `License`
+- 仓库名：`paipaiHighLevel`
+- 可见性：`Public`
+- 不要勾选初始化 `README`、`.gitignore` 或 `License`
 
-### 3. Bind the local repository to GitHub
+### 3. 绑定本地仓库与 GitHub 远程仓库
 
-Replace `<your-github-name>` with your own GitHub username:
+把 `<你的 GitHub 用户名>` 替换成你自己的 GitHub 用户名：
 
 ```powershell
-git remote add origin https://github.com/<your-github-name>/paipaiHighLevel.git
+git remote add origin https://github.com/<你的 GitHub 用户名>/paipaiHighLevel.git
 git push -u origin main
 ```
 
-### 4. Turn on GitHub Pages
+### 4. 开启 GitHub Pages
 
-In the GitHub repository page:
+在 GitHub 仓库页面中：
 
-1. Open `Settings`
-2. Open `Pages`
-3. Under `Build and deployment`, set `Source` to `GitHub Actions`
+1. 打开 `Settings`
+2. 打开 `Pages`
+3. 在 `Build and deployment` 中把 `Source` 设为 `GitHub Actions`
 
-After that, the included workflow will handle the build and deployment automatically.
+完成后，仓库中已经准备好的工作流会自动负责构建和部署。
 
-## What The Workflow Does
+## 工作流会做什么
 
-Each push to `main` triggers `.github/workflows/deploy-pages.yml`.
+每次向 `main` 分支推送时，`.github/workflows/deploy-pages.yml` 都会自动触发。
 
-The workflow performs these steps:
+工作流会依次执行：
 
-1. Check out the repository
-2. Install Python and site dependencies
-3. Run `scripts/build_catalog.py`
-4. Build the static site with `mkdocs build`
-5. Deploy the generated `site/` folder to GitHub Pages
+1. 检出仓库代码
+2. 安装 Python 和站点依赖
+3. 运行 `scripts/build_catalog.py`
+4. 通过 `mkdocs build` 构建静态站点
+5. 将生成的 `site/` 目录部署到 GitHub Pages
 
-## How Daily Updates Work
+## 日常更新方式
 
-After the first deployment, your daily flow becomes:
+首次部署完成后，你平时只需要这样更新：
 
 ```powershell
 git add .
-git commit -m "Update knowledge base"
+git commit -m "更新知识库"
 git push origin main
 ```
 
-Once the push finishes:
+推送完成后：
 
-- GitHub Actions rebuilds the catalog
-- GitHub Pages republishes the site
-- The online knowledge base reflects the latest Markdown content
+- GitHub Actions 会重新生成目录页和概要页
+- GitHub Pages 会重新发布站点
+- 线上知识库会同步为最新内容
 
-## Expected Website Address
+## 预期网站地址
 
-Once GitHub Pages finishes the first deployment, the site address is usually:
+GitHub Pages 第一次部署成功后，网站地址通常是：
 
 ```text
-https://<your-github-name>.github.io/paipaiHighLevel/
+https://<你的 GitHub 用户名>.github.io/paipaiHighLevel/
 ```
 
-## Optional Local Preview
+## 可选的本地预览
 
-If you want to preview locally before pushing:
+如果你想在推送前先本地预览，可以执行：
 
 ```powershell
 python -m venv .venv
@@ -104,31 +104,31 @@ python scripts/build_catalog.py
 mkdocs serve
 ```
 
-Then open:
+然后访问：
 
 ```text
 http://127.0.0.1:8000/
 ```
 
-## Troubleshooting
+## 常见问题
 
-### The site did not update
+### 网站没有更新
 
-Check the `Actions` tab on GitHub and confirm that the latest workflow run succeeded.
+先打开 GitHub 仓库的 `Actions` 页面，确认最近一次工作流执行成功。
 
-### GitHub links inside the generated pages are missing
+### 自动生成页里的 GitHub 链接没有出现
 
-Those links are filled automatically during GitHub Actions builds through the `GITHUB_REPOSITORY` environment variable. They may not appear in an offline local run.
+这些链接依赖 GitHub Actions 构建时自动注入的 `GITHUB_REPOSITORY` 环境变量。本地离线运行时，可能暂时看不到这些链接。
 
-### The generated pages show `Unknown` for last updated time
+### 自动生成页里显示“未知”更新时间
 
-That usually means the file has no Git commit history yet, or the current directory is not initialized as a Git repository.
+这通常说明对应文件还没有 Git 提交历史，或者当前目录还没有正确初始化为 Git 仓库。
 
-## Recommended Next Milestone
+## 下一步推荐优化
 
-After the basic deployment works, the next good milestone is to improve the generated site experience:
+在基础部署跑通之后，下一阶段很适合继续优化站点体验：
 
-- highlight recent diary updates
-- separate PARA areas more clearly
-- add tags or topic indexes
-- add a short custom landing page in your own voice
+- 突出最近更新的日记内容
+- 更清晰地区分 PARA 各区域
+- 增加标签页或专题索引
+- 补一个更有个人风格的首页介绍

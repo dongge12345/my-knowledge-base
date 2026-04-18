@@ -168,7 +168,7 @@ def markdown_summary(rel_file: Path) -> str:
     summary = re.sub(r"\s+", " ", summary)
 
     if not summary:
-        return "No summary available. Open the GitHub source for details."
+        return "暂无摘要，可通过 GitHub 原文链接查看完整内容。"
 
     if len(summary) > 180:
         return f"{summary[:177]}..."
@@ -215,7 +215,7 @@ def last_updated(rel_path: Path) -> str:
 
     value = result.stdout.strip()
     if not value:
-        return "Unknown"
+        return "未知"
 
     try:
         dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -261,7 +261,7 @@ def write_markdown(target: Path, lines: Iterable[str]) -> None:
 
 
 def github_text(url: str, label: str) -> str:
-    return f"[{label}]({url})" if url else "Generated in GitHub Actions only"
+    return f"[{label}]({url})" if url else "仅在 GitHub Actions 构建时生成"
 
 
 def write_root_index(files: list[Path], directories: set[Path]) -> None:
@@ -271,13 +271,13 @@ def write_root_index(files: list[Path], directories: set[Path]) -> None:
     recent_files = sorted(files, key=last_updated, reverse=True)[:15]
 
     lines = [
-        "# Knowledge Base Overview",
+        "# 知识库总览",
         "",
-        "This page is generated during each site build so you can browse the current structure and summaries quickly.",
+        "这个页面会在每次构建站点时自动生成，方便你快速浏览当前知识库结构和内容概要。",
         "",
-        "## Top Sections",
+        "## 顶层栏目",
         "",
-        "| Section | Markdown Files | GitHub |",
+        "| 栏目 | Markdown 文档数 | GitHub |",
         "| --- | ---: | --- |",
     ]
 
@@ -285,16 +285,16 @@ def write_root_index(files: list[Path], directories: set[Path]) -> None:
         dir_doc = generated_dir_doc(child_dir)
         internal_link = relative_link(target, dir_doc)
         lines.append(
-            f"| [{child_dir.name}]({internal_link}) | {count_files_in_dir(child_dir, files)} | {github_text(github_tree_url(child_dir), 'Open folder')} |"
+            f"| [{child_dir.name}]({internal_link}) | {count_files_in_dir(child_dir, files)} | {github_text(github_tree_url(child_dir), '打开目录')} |"
         )
 
     if child_files:
         lines.extend(
             [
                 "",
-                "## Root Markdown Files",
+                "## 根目录文档",
                 "",
-                "| File | Last Updated | GitHub |",
+                "| 文档 | 最近更新时间 | GitHub |",
                 "| --- | --- | --- |",
             ]
         )
@@ -303,15 +303,15 @@ def write_root_index(files: list[Path], directories: set[Path]) -> None:
             file_doc = generated_file_doc(rel_file)
             internal_link = relative_link(target, file_doc)
             lines.append(
-                f"| [{markdown_title(rel_file)}]({internal_link}) | {last_updated(rel_file)} | {github_text(github_blob_url(rel_file), 'Source')} |"
+                f"| [{markdown_title(rel_file)}]({internal_link}) | {last_updated(rel_file)} | {github_text(github_blob_url(rel_file), '原文')} |"
             )
 
     lines.extend(
         [
             "",
-            "## Recently Updated",
+            "## 最近更新",
             "",
-            "| File | Path | Last Updated |",
+            "| 文档 | 路径 | 最近更新时间 |",
             "| --- | --- | --- |",
         ]
     )
@@ -334,18 +334,18 @@ def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path
     lines = [
         f"# {rel_dir.name}",
         "",
-        f"- Source path: `{rel_dir.as_posix()}`",
-        f"- Markdown files: {count_files_in_dir(rel_dir, files)}",
-        f"- GitHub folder: {github_text(github_tree_url(rel_dir), 'Open folder')}",
+        f"- 原始路径：`{rel_dir.as_posix()}`",
+        f"- Markdown 文档数：{count_files_in_dir(rel_dir, files)}",
+        f"- GitHub 目录：{github_text(github_tree_url(rel_dir), '打开目录')}",
         "",
     ]
 
     if child_dirs:
         lines.extend(
             [
-                "## Child Folders",
+                "## 子目录",
                 "",
-                "| Folder | Markdown Files | GitHub |",
+                "| 目录 | Markdown 文档数 | GitHub |",
                 "| --- | ---: | --- |",
             ]
         )
@@ -353,16 +353,16 @@ def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path
             child_doc = generated_dir_doc(child_dir)
             internal_link = relative_link(target, child_doc)
             lines.append(
-                f"| [{child_dir.name}]({internal_link}) | {count_files_in_dir(child_dir, files)} | {github_text(github_tree_url(child_dir), 'Open folder')} |"
+                f"| [{child_dir.name}]({internal_link}) | {count_files_in_dir(child_dir, files)} | {github_text(github_tree_url(child_dir), '打开目录')} |"
             )
         lines.append("")
 
     if child_files:
         lines.extend(
             [
-                "## Markdown Files",
+                "## 文档列表",
                 "",
-                "| Title | Summary | Last Updated | GitHub |",
+                "| 标题 | 概要 | 最近更新时间 | GitHub |",
                 "| --- | --- | --- | --- |",
             ]
         )
@@ -370,14 +370,14 @@ def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path
             file_doc = generated_file_doc(rel_file)
             internal_link = relative_link(target, file_doc)
             lines.append(
-                f"| [{markdown_title(rel_file)}]({internal_link}) | {markdown_summary(rel_file)} | {last_updated(rel_file)} | {github_text(github_blob_url(rel_file), 'Source')} |"
+                f"| [{markdown_title(rel_file)}]({internal_link}) | {markdown_summary(rel_file)} | {last_updated(rel_file)} | {github_text(github_blob_url(rel_file), '原文')} |"
             )
         lines.append("")
 
     if not child_dirs and not child_files:
         lines.extend(
             [
-                "No Markdown content was discovered under this folder.",
+                "当前目录下暂未发现可用于展示的 Markdown 文档。",
                 "",
             ]
         )
@@ -394,28 +394,28 @@ def write_file_page(rel_file: Path) -> None:
     lines = [
         f"# {markdown_title(rel_file)}",
         "",
-        f"- Source path: `{rel_file.as_posix()}`",
-        f"- Parent folder: [Browse folder]({parent_link})",
-        f"- Last updated: {last_updated(rel_file)}",
-        f"- GitHub source: {github_text(github_blob_url(rel_file), 'Open file')}",
+        f"- 原始路径：`{rel_file.as_posix()}`",
+        f"- 所属目录：[查看目录]({parent_link})",
+        f"- 最近更新时间：{last_updated(rel_file)}",
+        f"- GitHub 原文：{github_text(github_blob_url(rel_file), '打开文件')}",
         "",
-        "## Summary",
+        "## 内容概要",
         "",
         markdown_summary(rel_file),
         "",
     ]
 
     if preview_lines:
-        lines.extend(["## Preview", ""])
+        lines.extend(["## 内容预览", ""])
         for line in preview_lines:
             lines.append(f"> {line}")
         lines.append("")
 
     lines.extend(
         [
-            "## Notes",
+            "## 阅读提示",
             "",
-            "Use the GitHub source link when you need the full document, attachments, images, or non-Markdown files from the same folder.",
+            "如果你需要查看完整正文、附件、图片或同目录下的非 Markdown 资源，请直接打开 GitHub 原文链接。",
         ]
     )
 

@@ -1,17 +1,17 @@
-# Personal Knowledge Base
+# 个人知识库
 
-This site is the web entry for your personal knowledge base.
+这是你的个人知识库在线入口。
 
-Start here:
+从这里开始：
 
-- [Open the generated catalog](_generated/index.md)
-- [Read the setup guide](setup.md)
+- [进入自动生成的知识库总览](_generated/index.md)
+- [查看部署说明](setup.md)
 
-How it works:
+工作方式：
 
-- You update Markdown files locally.
-- You push the repository to GitHub.
-- GitHub Actions generates the catalog and summary pages automatically.
-- GitHub Pages deploys the static site automatically.
+- 你在本地更新 Markdown 内容。
+- 你将仓库推送到 GitHub。
+- GitHub Actions 自动生成目录页和内容概要页。
+- GitHub Pages 自动构建并发布静态站点。
 
-If the site does not update immediately after a push, wait for the workflow run to finish.
+如果刚推送完内容后网站没有立刻变化，等待工作流执行完成即可。

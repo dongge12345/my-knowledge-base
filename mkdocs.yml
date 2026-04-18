@@ -1,5 +1,5 @@
-site_name: Personal Knowledge Base
-site_description: Personal knowledge base published with GitHub Pages.
+site_name: 个人知识库
+site_description: 基于 GitHub Pages 发布的个人知识库站点。
 
 theme:
   name: material
@@ -22,6 +22,6 @@ markdown_extensions:
       permalink: true
 
 nav:
-  - Home: index.md
-  - Catalog: _generated/index.md
-  - Setup: setup.md
+  - 首页: index.md
+  - 知识库总览: _generated/index.md
+  - 部署说明: setup.md

@@ -1,0 +1,3 @@
+[submodule "claude-usage-codex"]
+	path = claude-usage-codex
+	url = https://github.com/dongge12345/claude-usage-codex.git

@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import subprocess
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
@@ -14,65 +15,89 @@ ROOT = Path(__file__).resolve().parent.parent
 DOCS_DIR = ROOT / "docs"
 GENERATED_DIR = DOCS_DIR / "_generated"
 
-CONTENT_ROOT_NAMES = [
+DEFAULT_CONTENT_ROOT_NAMES = (
     "00_Inbox",
     "01_Projects",
     "02_Skills",
     "03_Career",
     "04_Logs",
     "90_Archive",
-]
+)
 
-EXCLUDED_DIR_NAMES = {
-    ".git",
-    ".github",
-    ".venv",
-    "__pycache__",
-    "docs",
-    "dist",
-    "node_modules",
-    "site",
-    "venv",
-}
+DEFAULT_EXCLUDED_DIR_NAMES = frozenset(
+    {
+        ".git",
+        ".github",
+        ".venv",
+        "__pycache__",
+        "docs",
+        "dist",
+        "node_modules",
+        "site",
+        "venv",
+    }
+)
 
-REPO_SLUG = os.environ.get("GITHUB_REPOSITORY", "").strip()
-GITHUB_SERVER = os.environ.get("GITHUB_SERVER_URL", "https://github.com").rstrip("/")
+
+@dataclass(frozen=True)
+class BuildContext:
+    root: Path
+    docs_dir: Path
+    generated_dir: Path
+    repo_slug: str = ""
+    github_server: str = "https://github.com"
+    content_root_names: tuple[str, ...] = DEFAULT_CONTENT_ROOT_NAMES
+    excluded_dir_names: frozenset[str] = DEFAULT_EXCLUDED_DIR_NAMES
+
+
+def default_context() -> BuildContext:
+    return BuildContext(
+        root=ROOT,
+        docs_dir=DOCS_DIR,
+        generated_dir=GENERATED_DIR,
+        repo_slug=os.environ.get("GITHUB_REPOSITORY", "").strip(),
+        github_server=os.environ.get("GITHUB_SERVER_URL", "https://github.com").rstrip("/"),
+    )
 
 
 def main() -> None:
-    files = discover_markdown_files()
+    build_catalog(default_context())
+
+
+def build_catalog(context: BuildContext) -> None:
+    files = discover_markdown_files(context)
     directories = collect_directory_nodes(files)
 
-    if GENERATED_DIR.exists():
-        shutil.rmtree(GENERATED_DIR)
-    GENERATED_DIR.mkdir(parents=True, exist_ok=True)
+    if context.generated_dir.exists():
+        shutil.rmtree(context.generated_dir)
+    context.generated_dir.mkdir(parents=True, exist_ok=True)
 
-    write_root_index(files, directories)
+    write_root_index(context, files, directories)
 
-    for rel_dir in sorted(d for d in directories if d != Path(".")):
-        write_directory_page(rel_dir, files, directories)
+    for rel_dir in sorted(path for path in directories if path != Path(".")):
+        write_directory_page(context, rel_dir, files, directories)
 
     for rel_file in sorted(files):
-        write_file_page(rel_file)
+        write_file_page(context, rel_file)
 
 
-def discover_markdown_files() -> list[Path]:
+def discover_markdown_files(context: BuildContext) -> list[Path]:
     files: list[Path] = []
 
-    for root_name in CONTENT_ROOT_NAMES:
-        root_dir = ROOT / root_name
+    for root_name in context.content_root_names:
+        root_dir = context.root / root_name
         if not root_dir.exists():
             continue
 
         for path in root_dir.rglob("*.md"):
-            if is_excluded_path(path):
+            if is_excluded_path(context, path):
                 continue
-            files.append(path.relative_to(ROOT))
+            files.append(path.relative_to(context.root))
 
-    for path in ROOT.glob("*.md"):
+    for path in context.root.glob("*.md"):
         if path.name.startswith("."):
             continue
-        files.append(path.relative_to(ROOT))
+        files.append(path.relative_to(context.root))
 
     return sorted(set(files))
 
@@ -91,40 +116,43 @@ def collect_directory_nodes(files: Iterable[Path]) -> set[Path]:
     return directories
 
 
-def is_excluded_path(path: Path) -> bool:
-    return any(part in EXCLUDED_DIR_NAMES for part in path.parts)
+def is_excluded_path(context: BuildContext, path: Path) -> bool:
+    return any(part in context.excluded_dir_names for part in path.parts)
 
 
-def generated_dir_doc(rel_dir: Path) -> Path:
+def generated_dir_doc(context: BuildContext, rel_dir: Path) -> Path:
     if rel_dir == Path("."):
-        return GENERATED_DIR / "index.md"
-    return GENERATED_DIR / rel_dir / "index.md"
+        return context.generated_dir / "index.md"
+    return context.generated_dir / rel_dir / "index.md"
 
 
-def generated_file_doc(rel_file: Path) -> Path:
-    return GENERATED_DIR / "_files" / rel_file
+def generated_file_doc(context: BuildContext, rel_file: Path) -> Path:
+    return context.generated_dir / "_files" / rel_file
 
 
-def github_blob_url(rel_path: Path) -> str:
-    if not REPO_SLUG:
+def github_blob_url(context: BuildContext, rel_path: Path) -> str:
+    if not context.repo_slug:
         return ""
     quoted_path = quote(rel_path.as_posix(), safe="/")
-    return f"{GITHUB_SERVER}/{REPO_SLUG}/blob/main/{quoted_path}"
+    return f"{context.github_server}/{context.repo_slug}/blob/main/{quoted_path}"
 
 
-def github_tree_url(rel_path: Path) -> str:
-    if not REPO_SLUG:
+def github_tree_url(context: BuildContext, rel_path: Path) -> str:
+    if not context.repo_slug:
         return ""
     quoted_path = quote(rel_path.as_posix(), safe="/")
-    return f"{GITHUB_SERVER}/{REPO_SLUG}/tree/main/{quoted_path}"
+    return f"{context.github_server}/{context.repo_slug}/tree/main/{quoted_path}"
 
 
-def markdown_title(rel_file: Path) -> str:
-    path = ROOT / rel_file
+def read_text(path: Path) -> str:
     try:
-        text = path.read_text(encoding="utf-8")
+        return path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
-        text = path.read_text(encoding="utf-8", errors="ignore")
+        return path.read_text(encoding="utf-8", errors="ignore")
+
+
+def markdown_title(context: BuildContext, rel_file: Path) -> str:
+    text = read_text(context.root / rel_file)
 
     for line in text.splitlines():
         stripped = line.strip()
@@ -134,12 +162,8 @@ def markdown_title(rel_file: Path) -> str:
     return rel_file.stem
 
 
-def markdown_summary(rel_file: Path) -> str:
-    path = ROOT / rel_file
-    try:
-        text = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        text = path.read_text(encoding="utf-8", errors="ignore")
+def markdown_summary(context: BuildContext, rel_file: Path) -> str:
+    text = read_text(context.root / rel_file)
 
     in_code_block = False
     paragraph: list[str] = []
@@ -164,8 +188,7 @@ def markdown_summary(rel_file: Path) -> str:
 
         paragraph.append(stripped)
 
-    summary = " ".join(paragraph).strip()
-    summary = re.sub(r"\s+", " ", summary)
+    summary = re.sub(r"\s+", " ", " ".join(paragraph).strip())
 
     if not summary:
         return "暂无摘要，可通过 GitHub 原文链接查看完整内容。"
@@ -176,12 +199,8 @@ def markdown_summary(rel_file: Path) -> str:
     return summary
 
 
-def markdown_preview(rel_file: Path, limit: int = 8) -> list[str]:
-    path = ROOT / rel_file
-    try:
-        text = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        text = path.read_text(encoding="utf-8", errors="ignore")
+def markdown_preview(context: BuildContext, rel_file: Path, limit: int = 8) -> list[str]:
+    text = read_text(context.root / rel_file)
 
     lines: list[str] = []
     in_code_block = False
@@ -203,15 +222,19 @@ def markdown_preview(rel_file: Path, limit: int = 8) -> list[str]:
     return lines
 
 
-def last_updated(rel_path: Path) -> str:
+def last_updated(context: BuildContext, rel_path: Path) -> str:
     command = ["git", "log", "-1", "--format=%cI", "--", rel_path.as_posix()]
-    result = subprocess.run(
-        command,
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+
+    try:
+        result = subprocess.run(
+            command,
+            cwd=context.root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return "未知"
 
     value = result.stdout.strip()
     if not value:
@@ -234,16 +257,19 @@ def count_files_in_dir(rel_dir: Path, files: Iterable[Path]) -> int:
 
         if rel_dir in rel_file.parents:
             total += 1
+
     return total
 
 
 def immediate_child_dirs(rel_dir: Path, directories: Iterable[Path]) -> list[Path]:
     children: list[Path] = []
+
     for candidate in directories:
         if candidate == Path(".") or candidate == rel_dir:
             continue
         if candidate.parent == rel_dir:
             children.append(candidate)
+
     return sorted(children)
 
 
@@ -264,11 +290,15 @@ def github_text(url: str, label: str) -> str:
     return f"[{label}]({url})" if url else "仅在 GitHub Actions 构建时生成"
 
 
-def write_root_index(files: list[Path], directories: set[Path]) -> None:
-    target = generated_dir_doc(Path("."))
+def write_root_index(
+    context: BuildContext,
+    files: list[Path],
+    directories: set[Path],
+) -> None:
+    target = generated_dir_doc(context, Path("."))
     child_dirs = immediate_child_dirs(Path("."), directories)
     child_files = immediate_child_files(Path("."), files)
-    recent_files = sorted(files, key=last_updated, reverse=True)[:15]
+    recent_files = sorted(files, key=lambda path: last_updated(context, path), reverse=True)[:15]
 
     lines = [
         "# 知识库总览",
@@ -282,10 +312,13 @@ def write_root_index(files: list[Path], directories: set[Path]) -> None:
     ]
 
     for child_dir in child_dirs:
-        dir_doc = generated_dir_doc(child_dir)
+        dir_doc = generated_dir_doc(context, child_dir)
         internal_link = relative_link(target, dir_doc)
         lines.append(
-            f"| [{child_dir.name}]({internal_link}) | {count_files_in_dir(child_dir, files)} | {github_text(github_tree_url(child_dir), '打开目录')} |"
+            "| "
+            f"[{child_dir.name}]({internal_link}) | "
+            f"{count_files_in_dir(child_dir, files)} | "
+            f"{github_text(github_tree_url(context, child_dir), '打开目录')} |"
         )
 
     if child_files:
@@ -300,10 +333,13 @@ def write_root_index(files: list[Path], directories: set[Path]) -> None:
         )
 
         for rel_file in child_files:
-            file_doc = generated_file_doc(rel_file)
+            file_doc = generated_file_doc(context, rel_file)
             internal_link = relative_link(target, file_doc)
             lines.append(
-                f"| [{markdown_title(rel_file)}]({internal_link}) | {last_updated(rel_file)} | {github_text(github_blob_url(rel_file), '原文')} |"
+                "| "
+                f"[{markdown_title(context, rel_file)}]({internal_link}) | "
+                f"{last_updated(context, rel_file)} | "
+                f"{github_text(github_blob_url(context, rel_file), '原文')} |"
             )
 
     lines.extend(
@@ -317,17 +353,25 @@ def write_root_index(files: list[Path], directories: set[Path]) -> None:
     )
 
     for rel_file in recent_files:
-        file_doc = generated_file_doc(rel_file)
+        file_doc = generated_file_doc(context, rel_file)
         internal_link = relative_link(target, file_doc)
         lines.append(
-            f"| [{markdown_title(rel_file)}]({internal_link}) | `{rel_file.as_posix()}` | {last_updated(rel_file)} |"
+            "| "
+            f"[{markdown_title(context, rel_file)}]({internal_link}) | "
+            f"`{rel_file.as_posix()}` | "
+            f"{last_updated(context, rel_file)} |"
         )
 
     write_markdown(target, lines)
 
 
-def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path]) -> None:
-    target = generated_dir_doc(rel_dir)
+def write_directory_page(
+    context: BuildContext,
+    rel_dir: Path,
+    files: list[Path],
+    directories: set[Path],
+) -> None:
+    target = generated_dir_doc(context, rel_dir)
     child_dirs = immediate_child_dirs(rel_dir, directories)
     child_files = immediate_child_files(rel_dir, files)
 
@@ -336,7 +380,7 @@ def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path
         "",
         f"- 原始路径：`{rel_dir.as_posix()}`",
         f"- Markdown 文档数：{count_files_in_dir(rel_dir, files)}",
-        f"- GitHub 目录：{github_text(github_tree_url(rel_dir), '打开目录')}",
+        f"- GitHub 目录：{github_text(github_tree_url(context, rel_dir), '打开目录')}",
         "",
     ]
 
@@ -349,12 +393,17 @@ def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path
                 "| --- | ---: | --- |",
             ]
         )
+
         for child_dir in child_dirs:
-            child_doc = generated_dir_doc(child_dir)
+            child_doc = generated_dir_doc(context, child_dir)
             internal_link = relative_link(target, child_doc)
             lines.append(
-                f"| [{child_dir.name}]({internal_link}) | {count_files_in_dir(child_dir, files)} | {github_text(github_tree_url(child_dir), '打开目录')} |"
+                "| "
+                f"[{child_dir.name}]({internal_link}) | "
+                f"{count_files_in_dir(child_dir, files)} | "
+                f"{github_text(github_tree_url(context, child_dir), '打开目录')} |"
             )
+
         lines.append("")
 
     if child_files:
@@ -366,12 +415,18 @@ def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path
                 "| --- | --- | --- | --- |",
             ]
         )
+
         for rel_file in child_files:
-            file_doc = generated_file_doc(rel_file)
+            file_doc = generated_file_doc(context, rel_file)
             internal_link = relative_link(target, file_doc)
             lines.append(
-                f"| [{markdown_title(rel_file)}]({internal_link}) | {markdown_summary(rel_file)} | {last_updated(rel_file)} | {github_text(github_blob_url(rel_file), '原文')} |"
+                "| "
+                f"[{markdown_title(context, rel_file)}]({internal_link}) | "
+                f"{markdown_summary(context, rel_file)} | "
+                f"{last_updated(context, rel_file)} | "
+                f"{github_text(github_blob_url(context, rel_file), '原文')} |"
             )
+
         lines.append("")
 
     if not child_dirs and not child_files:
@@ -385,23 +440,23 @@ def write_directory_page(rel_dir: Path, files: list[Path], directories: set[Path
     write_markdown(target, lines)
 
 
-def write_file_page(rel_file: Path) -> None:
-    target = generated_file_doc(rel_file)
-    parent_doc = generated_dir_doc(rel_file.parent)
+def write_file_page(context: BuildContext, rel_file: Path) -> None:
+    target = generated_file_doc(context, rel_file)
+    parent_doc = generated_dir_doc(context, rel_file.parent)
     parent_link = relative_link(target, parent_doc)
-    preview_lines = markdown_preview(rel_file)
+    preview_lines = markdown_preview(context, rel_file)
 
     lines = [
-        f"# {markdown_title(rel_file)}",
+        f"# {markdown_title(context, rel_file)}",
         "",
         f"- 原始路径：`{rel_file.as_posix()}`",
         f"- 所属目录：[查看目录]({parent_link})",
-        f"- 最近更新时间：{last_updated(rel_file)}",
-        f"- GitHub 原文：{github_text(github_blob_url(rel_file), '打开文件')}",
+        f"- 最近更新时间：{last_updated(context, rel_file)}",
+        f"- GitHub 原文：{github_text(github_blob_url(context, rel_file), '打开文件')}",
         "",
         "## 内容概要",
         "",
-        markdown_summary(rel_file),
+        markdown_summary(context, rel_file),
         "",
     ]
 
@@ -415,7 +470,8 @@ def write_file_page(rel_file: Path) -> None:
         [
             "## 阅读提示",
             "",
-            "如果你需要查看完整正文、附件、图片或同目录下的非 Markdown 资源，请直接打开 GitHub 原文链接。",
+            "如果你需要查看完整正文、附件、图片或同目录下的非 Markdown 资源，"
+            "请直接打开 GitHub 原文链接。",
         ]
     )
 

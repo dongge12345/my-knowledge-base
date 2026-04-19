@@ -1,6 +1,6 @@
 # GitHub Pages 部署说明
 
-这份说明基于当前仓库状态，整理了从本地仓库到公开知识库网站上线的具体步骤。
+这份说明基于当前仓库状态，整理了从本地仓库到公开知识库网站上线，以及后续日常维护的完整步骤。
 
 ## 已准备完成的内容
 
@@ -9,7 +9,8 @@
 - `mkdocs.yml`：站点配置
 - `docs/index.md`：站点首页
 - `scripts/build_catalog.py`：目录与概要生成脚本
-- `.github/workflows/deploy-pages.yml`：GitHub Pages 自动部署工作流
+- `.github/workflows/ci.yml`：检查、测试与预构建工作流
+- `.github/workflows/deploy-pages.yml`：正式发布 GitHub Pages 的工作流
 - `requirements.txt`：站点构建依赖
 
 也就是说，剩下的工作主要是操作层面的：初始化 Git 仓库、推送到 GitHub，并开启 Pages。
@@ -54,18 +55,42 @@ git push -u origin main
 2. 打开 `Pages`
 3. 在 `Build and deployment` 中把 `Source` 设为 `GitHub Actions`
 
-完成后，仓库中已经准备好的工作流会自动负责构建和部署。
+完成后，仓库中已经准备好的工作流会自动负责检查、构建和部署。
 
-## 工作流会做什么
+## 当前流水线结构
 
-每次向 `main` 分支推送时，`.github/workflows/deploy-pages.yml` 都会自动触发。
+现在仓库里的自动化已经拆成了 `CI + CD` 两段：
 
-工作流会依次执行：
+- `CI`：
+  - 在 `pull_request` 和 `push main` 时触发
+  - 执行 YAML / Python / Markdown 检查
+  - 运行 `pytest`
+  - 执行 `build_catalog.py` 和 `mkdocs build --strict`
+- `Deploy GitHub Pages`：
+  - 在 `CI` 成功处理完 `main` 分支 push 后触发
+  - 重新构建正式发布所需的站点产物
+  - 将 `site/` 发布到 GitHub Pages
+
+## CI 会做什么
+
+`.github/workflows/ci.yml` 会依次执行：
+
+1. YAML 检查
+2. Python 语法与 Ruff 检查
+3. Markdown lint
+4. `pytest`
+5. 站点 dry-run 构建
+
+如果当前事件是 Pull Request，CI 还会额外上传一个站点 artifact 作为预检产物。
+
+## CD 会做什么
+
+`.github/workflows/deploy-pages.yml` 会依次执行：
 
 1. 检出仓库代码
 2. 安装 Python 和站点依赖
 3. 运行 `scripts/build_catalog.py`
-4. 通过 `mkdocs build` 构建静态站点
+4. 通过 `mkdocs build --strict` 构建静态站点
 5. 将生成的 `site/` 目录部署到 GitHub Pages
 
 ## 日常更新方式
@@ -80,8 +105,8 @@ git push origin main
 
 推送完成后：
 
-- GitHub Actions 会重新生成目录页和概要页
-- GitHub Pages 会重新发布站点
+- Pull Request 会先触发 CI，帮你完成检查、测试与预构建
+- `main` 分支 push 会触发 CI，并在 CI 成功后进入正式部署
 - 线上知识库会同步为最新内容
 
 ## 预期网站地址
@@ -114,7 +139,10 @@ http://127.0.0.1:8000/
 
 ### 网站没有更新
 
-先打开 GitHub 仓库的 `Actions` 页面，确认最近一次工作流执行成功。
+先打开 GitHub 仓库的 `Actions` 页面，确认：
+
+- `CI` 已成功执行
+- `Deploy GitHub Pages` 已成功执行
 
 ### 自动生成页里的 GitHub 链接没有出现
 
@@ -123,6 +151,10 @@ http://127.0.0.1:8000/
 ### 自动生成页里显示“未知”更新时间
 
 这通常说明对应文件还没有 Git 提交历史，或者当前目录还没有正确初始化为 Git 仓库。
+
+### 想先看预检产物再决定是否合并
+
+如果这次提交是通过 Pull Request 发起的，可以在 `CI` 工作流成功后，到对应 run 的 `Artifacts` 区域下载预构建的站点产物。
 
 ## 下一步推荐优化
 

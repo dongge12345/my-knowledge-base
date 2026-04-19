@@ -1,0 +1,16 @@
+config:
+  MD013: false
+  MD033: false
+  MD041: false
+
+globs:
+  - "*.md"
+  - "docs/**/*.md"
+  - "00_Inbox/**/*.md"
+  - "03_Career/**/*.md"
+  - "04_Logs/**/*.md"
+  - "90_Archive/**/*.md"
+
+ignores:
+  - "docs/_generated/**/*.md"
+  - "temp/**/*.md"

@@ -4,15 +4,27 @@ site_description: 基于 GitHub Pages 发布的个人知识库站点。
 theme:
   name: material
   language: zh
+  palette:
+    - scheme: default
+      primary: teal
+      accent: amber
+  font:
+    text: Noto Sans SC
+    code: JetBrains Mono
   features:
     - navigation.sections
     - navigation.expand
     - navigation.top
     - search.suggest
     - search.highlight
+    - content.code.copy
+    - toc.follow
 
 plugins:
   - search
+
+extra_css:
+  - assets/stylesheets/extra.css
 
 markdown_extensions:
   - admonition

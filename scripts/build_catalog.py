@@ -14,6 +14,11 @@ ROOT = Path(__file__).resolve().parent.parent
 DOCS_DIR = ROOT / "docs"
 GENERATED_DIR = DOCS_DIR / "_generated"
 
+MARKDOWN_INLINE_LINK_RE = re.compile(r"!\[([^\]]*)\]\([^)]+\)|\[([^\]]+)\]\([^)]+\)")
+MARKDOWN_REFERENCE_LINK_RE = re.compile(r"!\[([^\]]*)\]\[[^\]]*\]|\[([^\]]+)\]\[[^\]]*\]")
+MARKDOWN_INLINE_CODE_RE = re.compile(r"`([^`]*)`")
+HTML_TAG_RE = re.compile(r"<[^>]+>")
+
 DEFAULT_CONTENT_ROOT_NAMES = (
     "00_Inbox",
     "01_Projects",
@@ -150,6 +155,17 @@ def read_text(path: Path) -> str:
         return path.read_text(encoding="utf-8", errors="ignore")
 
 
+def sanitize_markdown_excerpt(text: str) -> str:
+    text = MARKDOWN_INLINE_LINK_RE.sub(lambda match: (match.group(1) or match.group(2) or "").strip(), text)
+    text = MARKDOWN_REFERENCE_LINK_RE.sub(
+        lambda match: (match.group(1) or match.group(2) or "").strip(),
+        text,
+    )
+    text = MARKDOWN_INLINE_CODE_RE.sub(r"\1", text)
+    text = HTML_TAG_RE.sub("", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def markdown_title(context: BuildContext, rel_file: Path) -> str:
     text = read_text(context.root / rel_file)
 
@@ -187,7 +203,7 @@ def markdown_summary(context: BuildContext, rel_file: Path) -> str:
 
         paragraph.append(stripped)
 
-    summary = re.sub(r"\s+", " ", " ".join(paragraph).strip())
+    summary = sanitize_markdown_excerpt(" ".join(paragraph).strip())
 
     if not summary:
         return "暂无摘要，可通过 GitHub 原文链接查看完整内容。"
@@ -214,7 +230,11 @@ def markdown_preview(context: BuildContext, rel_file: Path, limit: int = 8) -> l
         if in_code_block or not stripped or stripped.startswith("#"):
             continue
 
-        lines.append(stripped)
+        cleaned = sanitize_markdown_excerpt(stripped)
+        if not cleaned:
+            continue
+
+        lines.append(cleaned)
         if len(lines) >= limit:
             break
 

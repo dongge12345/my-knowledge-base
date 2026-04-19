@@ -24,6 +24,13 @@ theme:
 plugins:
   - search
 
+validation:
+  nav:
+    omitted_files: ignore
+  links:
+    not_found: warn
+    anchors: warn
+
 extra_css:
   - assets/stylesheets/extra.css
 

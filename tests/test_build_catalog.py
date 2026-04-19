@@ -48,7 +48,15 @@ def test_markdown_helpers_extract_title_summary_and_preview(tmp_path: Path) -> N
     rel_file = Path("04_Logs/Diary/example.md")
     write_markdown(
         tmp_path / rel_file,
-        "# 本周复盘\n\n第一段第一行。\n第一段第二行。\n\n```python\nprint('skip')\n```\n\n第二段内容。\n",
+        (
+            "# 本周复盘\n\n"
+            "第一段第一行。\n"
+            "第一段第二行。\n\n"
+            "```python\n"
+            "print('skip')\n"
+            "```\n\n"
+            "第二段内容。\n"
+        ),
     )
 
     assert build_catalog.markdown_title(context, rel_file) == "本周复盘"

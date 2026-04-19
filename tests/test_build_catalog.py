@@ -3,7 +3,10 @@ from pathlib import Path
 from scripts import build_catalog
 
 
-def make_context(tmp_path: Path, repo_slug: str = "demo-user/demo-repo") -> build_catalog.BuildContext:
+def make_context(
+    tmp_path: Path,
+    repo_slug: str = "demo-user/demo-repo",
+) -> build_catalog.BuildContext:
     docs_dir = tmp_path / "docs"
     docs_dir.mkdir(parents=True, exist_ok=True)
     return build_catalog.BuildContext(

@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳跳虫大冒险</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5A52D5;
+            --secondary: #FF6B9D;
+            --accent: #00D2FF;
+            --gold: #FFD93D;
+            --success: #6BCB77;
+            --danger: #FF6B6B;
+            --dark: #2D3436;
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.2);
+            --radius-lg: 20px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+        }
+
+        body {
+            font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 动态背景 */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, #0c0e30 0%, #1a1545 25%, #2d1b69 50%, #1e3a5f 75%, #0c2340 100%);
+        }
+
+        .stars {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: var(--max-opacity); transform: scale(1); }
+        }
+
+        .floating-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            animation: floatOrb 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: var(--primary);
+            top: -100px; left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 350px; height: 350px;
+            background: var(--secondary);
+            bottom: -100px; right: -100px;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: var(--accent);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 50px) scale(0.9); }
+            75% { transform: translate(30px, 20px) scale(1.05); }
+        }
+
+        /* 返回导航 */
+        .back-nav {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .back-nav a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.7rem 1.4rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-nav a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .back-nav a svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* 游戏标题区 */
+        .game-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, #ffd93d 30%, #ff6b9d 60%, #00d2ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 4px 12px rgba(108, 99, 255, 0.3));
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .game-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-top: 0.3rem;
+        }
+
+        /* 分数板 - 玻璃拟态 */
+        .score-board {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .score-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .score-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+        }
+
+        .score-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .score-icon.current {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+
+        .score-icon.best {
+            background: linear-gradient(135deg, var(--gold), #ff9a00);
+        }
+
+        .score-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-value {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 900;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* 游戏画布容器 - 毛玻璃外框 */
+        .game-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(108, 99, 255, 0.1), transparent, rgba(255, 107, 157, 0.1), transparent);
+            animation: rotateBorder 8s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotateBorder {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 游戏画布 */
+        #gameCanvas {
+            display: block;
+            border-radius: var(--radius-md);
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(108, 99, 255, 0.1);
+        }
+
+        /* 操作提示 */
+        .hint-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1.2rem;
+            padding: 0.7rem 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .hint-bar kbd {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: white;
+        }
+
+        /* 控制按钮 */
+        .controls {
+            margin-top: 1.2rem;
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.8rem 2.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 800;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            color: white;
+            box-shadow: 0 6px 24px rgba(108, 99, 255, 0.4);
+        }
+
+        .btn-start:hover {
+            box-shadow: 0 10px 32px rgba(108, 99, 255, 0.5);
+        }
+
+        .btn-pause {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #FF8FB1);
+            color: white;
+            box-shadow: 0 6px 24px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 32px rgba(255, 107, 157, 0.5);
+        }
+
+        /* 操作说明 */
+        .info-section {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .info-card {
+            flex: 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 1.2rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .info-card .icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card h4 {
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-card p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        /* 连击显示 */
+        .combo-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1500;
+            opacity: 0;
+        }
+
+        .combo-text {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            filter: drop-shadow(0 4px 12px rgba(255, 217, 61, 0.5));
+            animation: comboPop 0.8s ease-out forwards;
+        }
+
+        @keyframes comboPop {
+            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            30% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+            100% { transform: scale(1) translateY(-60px) rotate(0deg); opacity: 0; }
+        }
+
+        /* 游戏结束弹窗 */
+        .game-over-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .game-over-modal {
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 15, 50, 0.98));
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            padding: 3rem 3.5rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            max-width: 420px;
+            width: 90%;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-60px) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--gold), #ff9a00);
+            color: var(--dark);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-score-ring {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary), var(--accent), var(--secondary), var(--gold), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem auto;
+            animation: ringRotate 3s linear infinite;
+            box-shadow: 0 0 40px rgba(108, 99, 255, 0.3);
+        }
+
+        @keyframes ringRotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal-score-inner {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1545, #2d1b69);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-score-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .modal-score-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .modal-best {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-best strong {
+            color: var(--gold);
+            font-weight: 800;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+
+        .new-record {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success), #4ade80);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            margin-bottom: 0.5rem;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .game-title { font-size: 1.8rem; }
+            #gameCanvas { touch-action: none; }
+            .game-container { padding: 10px; }
+            .hint-bar { font-size: 0.82rem; padding: 0.6rem 1.2rem; }
+            .info-section { flex-direction: column; }
+            .score-board { gap: 0.8rem; }
+            .score-card { padding: 0.5rem 1rem; }
+            .game-over-modal { padding: 2rem; }
+            .modal-score-ring { width: 120px; height: 120px; }
+            .modal-score-inner { width: 100px; height: 100px; }
+            .modal-score-value { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态背景层 -->
+    <div class="bg-layer"></div>
+    <div class="stars" id="stars"></div>
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+
+    <!-- 返回首页 -->
+    <div class="back-nav">
+        <a href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            返回首页
+        </a>
+    </div>
+
+    <!-- 游戏标题 -->
+    <div class="game-header">
+        <div class="game-title">&#x1F41B; 跳跳虫大冒险</div>
+        <div class="game-subtitle">跳过障碍，挑战极限</div>
+    </div>
+
+    <!-- 分数板 -->
+    <div class="score-board">
+        <div class="score-card">
+            <div class="score-icon current">&#x1F10B;</div>
+            <div>
+                <div class="score-label">当前分数</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+        </div>
+        <div class="score-card">
+            <div class="score-icon best">&#x1F3C6;</div>
+            <div>
+                <div class="score-label">历史最佳</div>
+                <div class="score-value" id="highScore">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏区域 -->
+    <div class="game-container" id="gameContainer">
+        <canvas id="gameCanvas" width="400" height="500"></canvas>
+    </div>
+
+    <!-- 操作提示 -->
+    <div class="hint-bar">
+        <span>&#x1F44E; 点击画面或按</span>
+        <kbd>空格</kbd>
+        <kbd>&#x2191;</kbd>
+        <span>跳跃</span>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+        <button class="btn btn-start" id="startBtn">&#x25B6;&#xFE0F; 开始游戏</button>
+    </div>
+
+    <!-- 信息卡片 -->
+    <div class="info-section">
+        <div class="info-card">
+            <div class="icon">&#x1F3AF;</div>
+            <h4>躲避障碍</h4>
+            <p>越过紫色能量柱<br>不要触碰它们</p>
+        </div>
+        <div class="info-card">
+            <div class="icon">&#x2B50;</div>
+            <h4>累积分数</h4>
+            <p>每通过一个障碍<br>+10 分并加速</p>
+        </div>
+        <div class="info-card">
+            <div class="icon">&#x1F680;</div>
+            <h4>不断挑战</h4>
+            <p>速度越来越快<br>挑战你的最高纪录</p>
+        </div>
+    </div>
+
+    <!-- 连击弹出显示 -->
+    <div class="combo-display" id="comboDisplay"></div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="game-over-overlay" id="gameOverOverlay">
+        <div class="game-over-modal">
+            <div id="newRecordBadge" style="display:none" class="new-record">&#x1F31F; 新纪录!</div>
+            <div class="modal-title">&#x1F3AE; 游戏结束</div>
+            <div class="modal-score-ring">
+                <div class="modal-score-inner">
+                    <div class="modal-score-label">得分</div>
+                    <div class="modal-score-value" id="finalScore">0</div>
+                </div>
+            </div>
+            <div class="modal-best">历史最佳: <strong id="finalBest">0</strong></div>
+            <div class="modal-btns">
+                <button class="btn btn-start" id="restartBtn">&#x1F501; 再来一局</button>
+                <button class="btn btn-pause" id="homeBtn">&#x1F3E0; 首页</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 游戏配置 ==========
+        const CONFIG = {
+            gravity: 0.35,              // 重力加速度
+            jumpForce: -10,             // 跳跃力度
+            obstacleSpeed: 2,           // 障碍物速度
+            obstacleSpawnInterval: 1500, // 障碍物生成间隔 (ms)
+            canvasWidth: 400,
+            canvasHeight: 500,
+        };
+
+        // ========== 游戏状态 ==========
+        let canvas, ctx;
+        let gameContainer;
+        let bug = {};
+        let obstacles = [];
+        let particles = [];
+        let score = 0;
+        let highScore = 0;
+        let gameLoop = null;
+        let obstacleTimer = null;
+        let isPlaying = false;
+        let frameCount = 0;
+        let speedMultiplier = 1;
+
+        // ========== 初始化星空 ==========
+        function initStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+                star.style.setProperty('--max-opacity', (0.3 + Math.random() * 0.7));
+                star.style.animationDelay = (Math.random() * 5) + 's';
+                star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+                container.appendChild(star);
+            }
+        }
+
+        // ========== 粒子系统 ==========
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 6;
+                this.vy = (Math.random() - 0.5) * 6 - 2;
+                this.radius = 2 + Math.random() * 4;
+                this.color = color;
+                this.alpha = 1;
+                this.decay = 0.02 + Math.random() * 0.03;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.15;
+                this.alpha -= this.decay;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function spawnParticles(x, y, count, colors) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawParticles() {
+            particles.forEach(p => p.draw(ctx));
+        }
+
+        // ========== 连击显示 ==========
+        function showCombo(text) {
+            const el = document.getElementById('comboDisplay');
+            el.innerHTML = '<div class="combo-text">' + text + '</div>';
+            el.style.opacity = '1';
+            setTimeout(() => { el.style.opacity = '0'; }, 900);
+        }
+
+        // ========== 初始化 ==========
+        function init() {
+            initStars();
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            gameContainer = document.getElementById('gameContainer');
+
+            highScore = parseInt(localStorage.getItem('bugJumpHighScore')) || 0;
+            document.getElementById('highScore').textContent = highScore;
+
+            bindEvents();
+            resetGame();
+            render();
+        }
+
+        // ========== 事件绑定 ==========
+        function bindEvents() {
+            gameContainer.addEventListener('click', jump);
+            document.addEventListener('keydown', handleKeyPress);
+            gameContainer.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                jump();
+            }, { passive: false });
+
+            document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('restartBtn').addEventListener('click', restartGame);
+            document.getElementById('homeBtn').addEventListener('click', () => {
+                location.href = 'index.html';
+            });
+        }
+
+        // ========== 键盘处理 ==========
+        function handleKeyPress(e) {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                if (isPlaying) {
+                    jump();
+                } else if (!isPlaying && e.code === 'Space') {
+                    startGame();
+                }
+            }
+        }
+
+        // ========== 跳跃动作 ==========
+        function jump() {
+            if (bug.onGround) {
+                bug.velocity = CONFIG.jumpForce;
+                bug.onGround = false;
+                // 跳跃粒子
+                spawnParticles(bug.x, bug.y + bug.radius * 0.5, 8, ['#00D2FF', '#6BCB77', '#ffffff']);
+            }
+        }
+
+        // ========== 游戏控制 ==========
+        function startGame() {
+            if (isPlaying) return;
+
+            isPlaying = true;
+            document.getElementById('startBtn').innerHTML = '&#x23F8; 游戏中...';
+
+            gameLoop = requestAnimationFrame(gameUpdate);
+            obstacleTimer = setInterval(spawnObstacle, CONFIG.obstacleSpawnInterval);
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverOverlay').style.display = 'none';
+            document.getElementById('newRecordBadge').style.display = 'none';
+            resetGame();
+            startGame();
+        }
+
+        function resetGame() {
+            const groundY = CONFIG.canvasHeight - 60;
+
+            bug = {
+                x: 80,
+                y: groundY - 25,
+                radius: 22,
+                velocity: 0,
+                onGround: true,
+                rotation: 0,
+                targetRotation: 0,
+                squish: 1,
+                eyeDirection: 1,
+            };
+
+            obstacles = [];
+            particles = [];
+            score = 0;
+            frameCount = 0;
+            speedMultiplier = 1;
+            updateScore();
+        }
+
+        function gameOver() {
+            cancelAnimationFrame(gameLoop);
+            clearInterval(obstacleTimer);
+            isPlaying = false;
+
+            const isNewRecord = score > highScore;
+            if (isNewRecord) {
+                highScore = score;
+                localStorage.setItem('bugJumpHighScore', highScore);
+                document.getElementById('newRecordBadge').style.display = 'inline-block';
+            }
+
+            document.getElementById('finalBest').textContent = highScore;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverOverlay').style.display = 'flex';
+            document.getElementById('startBtn').innerHTML = '&#x25B6;&#xFE0F; 开始游戏';
+
+            // 死亡粒子爆炸
+            spawnParticles(bug.x, bug.y, 25, ['#FF6B6B', '#FF8E53', '#FFE66D', '#FFFFFF']);
+        }
+
+        // ========== 生成障碍物 ==========
+        function spawnObstacle() {
+            const groundY = CONFIG.canvasHeight - 60;
+            const minHeight = 45;
+            const maxHeight = 110;
+            const height = Math.random() * (maxHeight - minHeight) + minHeight;
+            const x = CONFIG.canvasWidth;
+
+            obstacles.push({
+                x: x,
+                y: groundY - height,
+                width: 28 + Math.random() * 12,
+                height: height,
+                passed: false,
+                glowPhase: Math.random() * Math.PI * 2,
+                type: Math.random() > 0.5 ? 'crystal' : 'pillar',
+            });
+
+            // 随分数增加难度
+            speedMultiplier = 1 + Math.floor(score / 100) * 0.12;
+            clearInterval(obstacleTimer);
+            obstacleTimer = setInterval(
+                spawnObstacle,
+                Math.max(750, CONFIG.obstacleSpawnInterval / speedMultiplier)
+            );
+        }
+
+        // ========== 游戏主循环 ==========
+        function gameUpdate() {
+            if (!isPlaying) return;
+
+            frameCount++;
+            updateBug();
+            updateObstacles();
+            updateParticles();
+            render();
+
+            gameLoop = requestAnimationFrame(gameUpdate);
+        }
+
+        // ========== 更新跳跳虫 ==========
+        function updateBug() {
+            bug.velocity += CONFIG.gravity;
+            bug.y += bug.velocity;
+
+            const groundY = CONFIG.canvasHeight - 60;
+
+            if (bug.y >= groundY - bug.radius) {
+                bug.y = groundY - bug.radius;
+                bug.velocity = 0;
+                bug.onGround = true;
+                bug.rotation += (bug.targetRotation - bug.rotation) * 0.2;
+                if (Math.abs(bug.rotation) < 0.01) bug.rotation = 0;
+                // 跑动挤压效果
+                bug.squish += (1 - bug.squish) * 0.2;
+            } else {
+                // 空中翻转
+                bug.rotation += 0.08;
+                bug.squish += (0.85 - bug.squish) * 0.15;
+                bug.eyeDirection = 1;
+            }
+
+            if (bug.y < bug.radius) {
+                bug.y = bug.radius;
+                bug.velocity = 0;
+            }
+        }
+
+        // ========== 更新障碍物 ==========
+        function updateObstacles() {
+            const groundY = CONFIG.canvasHeight - 60;
+            const speed = CONFIG.obstacleSpeed * speedMultiplier;
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+                obs.x -= speed;
+                obs.glowPhase += 0.05;
+
+                if (checkCollision(bug, obs)) {
+                    gameOver();
+                    return;
+                }
+
+                if (!obs.passed && obs.x + obs.width < bug.x) {
+                    obs.passed = true;
+                    score += 10;
+                    updateScore();
+                    // 得分粒子
+                    spawnParticles(bug.x, bug.y - bug.radius, 6, ['#FFD93D', '#FF6B9D', '#00D2FF']);
+                }
+
+                if (obs.x + obs.width < -20) {
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+
+        // ========== 碰撞检测 ==========
+        function checkCollision(bug, obstacle) {
+            const padding = 4;
+            const closestX = Math.max(obstacle.x + padding, Math.min(bug.x, obstacle.x + obstacle.width - padding));
+            const closestY = Math.max(obstacle.y + padding, Math.min(bug.y, obstacle.y + obstacle.height - padding));
+
+            const dx = bug.x - closestX;
+            const dy = bug.y - closestY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            return distance < bug.radius - padding;
+        }
+
+        // ========== 更新分数 ==========
+        function updateScore() {
+            const el = document.getElementById('score');
+            el.textContent = score;
+            el.style.transform = 'scale(1.3)';
+            setTimeout(() => { el.style.transform = 'scale(1)'; }, 150);
+        }
+
+        // ========== 渲染 ==========
+        function render() {
+            const groundY = CONFIG.canvasHeight - 60;
+
+            ctx.clearRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight);
+
+            // 天空渐变（夜间极光风格）
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, CONFIG.canvasHeight);
+            skyGradient.addColorStop(0, '#0a0e2a');
+            skyGradient.addColorStop(0.4, '#141852');
+            skyGradient.addColorStop(0.7, '#1a2555');
+            skyGradient.addColorStop(1, '#1e3050');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight);
+
+            // 星空
+            drawStarsBackground();
+
+            // 云朵（霓虹风格）
+            drawClouds();
+
+            // 远景山丘
+            drawMountains();
+
+            // 地面
+            drawGround(groundY);
+
+            // 绘制障碍物
+            obstacles.forEach(obs => drawObstacle(obs));
+
+            // 绘制跳跳虫
+            drawBug(bug.x, bug.y, bug.radius, bug.rotation, bug.squish, bug.onGround);
+
+            // 粒子
+            drawParticles();
+
+            // 未开始时提示
+            if (!isPlaying && obstacles.length === 0) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight);
+
+                ctx.fillStyle = 'white';
+                ctx.font = '800 18px Nunito, Microsoft YaHei, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('点击屏幕或按空格键', CONFIG.canvasWidth / 2, groundY - 60);
+
+                ctx.font = '600 14px Nunito, Microsoft YaHei, sans-serif';
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.fillText('开始大冒险', CONFIG.canvasWidth / 2, groundY - 35);
+            }
+        }
+
+        // ========== 背景星空 ==========
+        let bgStars = [];
+        function initBgStars() {
+            if (bgStars.length > 0) return;
+            for (let i = 0; i < 50; i++) {
+                bgStars.push({
+                    x: Math.random() * CONFIG.canvasWidth,
+                    y: Math.random() * (CONFIG.canvasHeight - 100),
+                    r: 0.5 + Math.random() * 1.5,
+                    speed: 0.1 + Math.random() * 0.3,
+                    phase: Math.random() * Math.PI * 2,
+                });
+            }
+        }
+
+        function drawStarsBackground() {
+            initBgStars();
+            bgStars.forEach(s => {
+                s.phase += 0.02;
+                const alpha = 0.3 + 0.7 * Math.abs(Math.sin(s.phase));
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // ========== 霓虹云朵 ==========
+        function drawClouds() {
+            const cloudOffset = (frameCount * 0.3) % (CONFIG.canvasWidth + 100);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+
+            drawCloudShape(50 - cloudOffset * 0.2, 70, 1);
+            drawCloudShape(200 - cloudOffset * 0.35, 45, 0.8);
+            drawCloudShape(350 - cloudOffset * 0.15, 90, 1.1);
+            drawCloudShape(CONFIG.canvasWidth + 50 - cloudOffset * 0.25, 60, 0.9);
+        }
+
+        function drawCloudShape(cx, cy, scale) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(scale, scale);
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            ctx.arc(22, -8, 22, 0, Math.PI * 2);
+            ctx.arc(44, 0, 18, 0, Math.PI * 2);
+            ctx.arc(22, 4, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ========== 远山地貌 ==========
+        function drawMountains() {
+            ctx.fillStyle = 'rgba(20, 24, 60, 0.8)';
+            ctx.beginPath();
+            ctx.moveTo(0, CONFIG.canvasHeight - 60);
+            for (let x = 0; x <= CONFIG.canvasWidth; x += 30) {
+                const y = CONFIG.canvasHeight - 90 - Math.sin(x * 0.015 + frameCount * 0.002) * 25
+                    - Math.sin(x * 0.008) * 15;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(CONFIG.canvasWidth, CONFIG.canvasHeight - 60);
+            ctx.closePath();
+            ctx.fill();
+
+            // 第二层山脉
+            ctx.fillStyle = 'rgba(30, 40, 70, 0.6)';
+            ctx.beginPath();
+            ctx.moveTo(0, CONFIG.canvasHeight - 60);
+            for (let x = 0; x <= CONFIG.canvasWidth; x += 20) {
+                const y = CONFIG.canvasHeight - 75 - Math.sin(x * 0.02 + 1 + frameCount * 0.001) * 18
+                    - Math.cos(x * 0.01) * 10;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(CONFIG.canvasWidth, CONFIG.canvasHeight - 60);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // ========== 地面 ==========
+        function drawGround(groundY) {
+            // 主地面
+            const groundGrad = ctx.createLinearGradient(0, groundY, 0, CONFIG.canvasHeight);
+            groundGrad.addColorStop(0, '#1a5c2a');
+            groundGrad.addColorStop(0.3, '#15502a');
+            groundGrad.addColorStop(1, '#0d3520');
+            ctx.fillStyle = groundGrad;
+            ctx.fillRect(0, groundY, CONFIG.canvasWidth, CONFIG.canvasHeight - groundY);
+
+            // 发光草皮边缘
+            const grassGlow = ctx.createLinearGradient(0, groundY - 5, 0, groundY + 5);
+            grassGlow.addColorStop(0, 'rgba(107, 203, 119, 0.6)');
+            grassGlow.addColorStop(1, 'rgba(107, 203, 119, 0)');
+            ctx.fillStyle = grassGlow;
+            ctx.fillRect(0, groundY - 5, CONFIG.canvasWidth, 10);
+
+            // 草叶动画
+            ctx.strokeStyle = 'rgba(107, 203, 119, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            for (let i = 0; i < CONFIG.canvasWidth; i += 12) {
+                const sway = Math.sin((frameCount + i * 3) * 0.05) * 4;
+                const h = 8 + Math.sin(i * 0.7) * 4;
+                ctx.beginPath();
+                ctx.moveTo(i, groundY);
+                ctx.quadraticCurveTo(i + sway, groundY - h * 0.6, i + sway * 1.5, groundY - h);
+                ctx.stroke();
+            }
+        }
+
+        // ========== 绘制障碍物（升级视觉效果）==========
+        function drawObstacle(obs) {
+            const speed = CONFIG.obstacleSpeed * speedMultiplier;
+
+            if (obs.type === 'crystal') {
+                drawCrystalObstacle(obs);
+            } else {
+                drawPillarObstacle(obs);
+            }
+        }
+
+        function drawCrystalObstacle(obs) {
+            const { x, y, width, height } = obs;
+            const glow = 0.3 + 0.2 * Math.sin(obs.glowPhase);
+
+            // 发光效果
+            ctx.shadowColor = '#BF5FFF';
+            ctx.shadowBlur = 15 + 5 * Math.sin(obs.glowPhase);
+
+            // 晶体主体 - 渐变
+            const grad = ctx.createLinearGradient(x, y, x + width, y + height);
+            grad.addColorStop(0, `rgba(160, 100, 255, ${glow + 0.4})`);
+            grad.addColorStop(0.5, `rgba(120, 60, 220, ${glow + 0.5})`);
+            grad.addColorStop(1, `rgba(80, 30, 180, ${glow + 0.3})`);
+            ctx.fillStyle = grad;
+
+            // 晶柱形状（上窄下宽再窄）
+            const topShrink = 4;
+            ctx.beginPath();
+            ctx.moveTo(x + topShrink, y);
+            ctx.lineTo(x + width - topShrink, y);
+            ctx.lineTo(x + width, y + height * 0.15);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x, y + height);
+            ctx.lineTo(x, y + height * 0.15);
+            ctx.closePath();
+            ctx.fill();
+
+            // 晶体高光面
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(200, 180, 255, 0.2)';
+            ctx.beginPath();
+            ctx.moveTo(x + topShrink + 3, y + 5);
+            ctx.lineTo(x + width / 2 - 2, y + 5);
+            ctx.lineTo(x + width / 2 - 4, y + height);
+            ctx.lineTo(x + 4, y + height);
+            ctx.lineTo(x + 2, y + height * 0.15 + 5);
+            ctx.closePath();
+            ctx.fill();
+
+            // 边框线
+            ctx.strokeStyle = `rgba(191, 95, 255, ${0.5 + glow})`;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x + topShrink, y);
+            ctx.lineTo(x + width - topShrink, y);
+            ctx.lineTo(x + width, y + height * 0.15);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x, y + height);
+            ctx.lineTo(x, y + height * 0.15);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function drawPillarObstacle(obs) {
+            const { x, y, width, height } = obs;
+            const glow = 0.3 + 0.2 * Math.sin(obs.glowPhase);
+
+            // 发光效果
+            ctx.shadowColor = '#FF6B9D';
+            ctx.shadowBlur = 12 + 4 * Math.sin(obs.glowPhase);
+
+            // 柱体渐变
+            const grad = ctx.createLinearGradient(x, y, x + width, y + height);
+            grad.addColorStop(0, `rgba(255, 107, 157, ${glow + 0.4})`);
+            grad.addColorStop(0.5, `rgba(220, 70, 130, ${glow + 0.5})`);
+            grad.addColorStop(1, `rgba(180, 40, 100, ${glow + 0.3})`);
+            ctx.fillStyle = grad;
+
+            // 圆角柱体
+            const r = 6;
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + width - r, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+            ctx.lineTo(x + width, y + height - r);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+            ctx.lineTo(x + r, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+            ctx.fill();
+
+            // 脉冲条纹装饰
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(255, 200, 220, 0.15)';
+            const stripeCount = Math.floor(height / 25);
+            for (let i = 0; i < stripeCount; i++) {
+                const sy = y + 10 + i * 25;
+                const offset = Math.sin(obs.glowPhase + i) * 2;
+                ctx.beginPath();
+                ctx.roundRect(x + 4 + offset, sy, width * 0.3, 12, 3);
+                ctx.fill();
+            }
+
+            // 顶部发光球
+            ctx.shadowColor = '#FF6B9D';
+            ctx.shadowBlur = 20 + 10 * Math.sin(obs.glowPhase);
+            ctx.fillStyle = `rgba(255, 140, 180, ${0.6 + glow * 0.4})`;
+            ctx.beginPath();
+            ctx.arc(x + width / 2, y - 2, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+        }
+
+        // ========== 绘制跳跳虫（大幅增强）==========
+        function drawBug(x, y, radius, rotation, squish, onGround) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(1, squish);
+
+            // 拖尾光效（空中时）
+            if (!onGround) {
+                ctx.save();
+                ctx.scale(1, 1 / squish);
+                ctx.translate(0, 5);
+                const trailGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 1.5);
+                trailGrad.addColorStop(0, 'rgba(108, 99, 255, 0.2)');
+                trailGrad.addColorStop(1, 'rgba(108, 99, 255, 0)');
+                ctx.fillStyle = trailGrad;
+                ctx.beginPath();
+                ctx.arc(0, 0, radius * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            ctx.rotate(rotation * 0.1);
+
+            // 身体阴影
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(3, 5, radius * 0.9, radius * 0.6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 身体外发光
+            ctx.shadowColor = '#FF6B6B';
+            ctx.shadowBlur = 12;
+
+            // 身体渐变
+            const bodyGrad = ctx.createRadialGradient(-3, -4, 2, 0, 0, radius);
+            bodyGrad.addColorStop(0, '#FF8E8E');
+            bodyGrad.addColorStop(0.5, '#FF6B6B');
+            bodyGrad.addColorStop(1, '#E85555');
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, radius, radius * 0.72, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+
+            // 身体花纹斑点
+            ctx.fillStyle = 'rgba(255, 200, 200, 0.3)';
+            ctx.beginPath();
+            ctx.arc(-6, -5, radius * 0.28, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(200, 50, 50, 0.25)';
+            ctx.beginPath();
+            ctx.arc(6, 3, radius * 0.22, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 身体高光
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.beginPath();
+            ctx.ellipse(-4, -radius * 0.3, radius * 0.35, radius * 0.2, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ===== 眼睛 =====
+            const eyeX = radius * 0.25;
+            const eyeY = -radius * 0.15;
+            const eyeR = radius * 0.3;
+
+            // 眼眶
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.ellipse(eyeX, eyeY, eyeR, eyeR * 1.1, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 眼角
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.beginPath();
+            ctx.arc(eyeX - eyeR * 0.6, eyeY, eyeR * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 眼珠（看向运动方向）
+            const pupilOffX = bug.eyeDirection * 2;
+            const pupilOffY = !onGround ? -2 : 0;
+            ctx.fillStyle = '#1a1a2e';
+            ctx.beginPath();
+            ctx.arc(eyeX + pupilOffX, eyeY + pupilOffY, eyeR * 0.55, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 眼神光
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(eyeX + pupilOffX + 1.5, eyeY + pupilOffY - 2, eyeR * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 腮红
+            ctx.fillStyle = 'rgba(255, 120, 150, 0.35)';
+            ctx.beginPath();
+            ctx.ellipse(-radius * 0.4, radius * 0.15, radius * 0.22, radius * 0.15, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ===== 嘴巴 =====
+            ctx.strokeStyle = '#C0392B';
+            ctx.lineWidth = 1.5;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.arc(eyeX + 2, radius * 0.15, 4, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+
+            // ===== 触角 =====
+            const antennaTopY = -radius * 0.65;
+            ctx.strokeStyle = '#FF8E8E';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+
+            // 左触角
+            const lAntWave = Math.sin(frameCount * 0.08) * 4;
+            ctx.beginPath();
+            ctx.moveTo(-radius * 0.25, antennaTopY);
+            ctx.quadraticCurveTo(-radius * 0.55 + lAntWave, antennaTopY - radius * 0.4,
+                -radius * 0.45 + lAntWave * 1.5, antennaTopY - radius * 0.65);
+            ctx.stroke();
+
+            // 右触角
+            const rAntWave = Math.sin(frameCount * 0.08 + 1.5) * 4;
+            ctx.beginPath();
+            ctx.moveTo(radius * 0.1, antennaTopY - radius * 0.1);
+            ctx.quadraticCurveTo(radius * 0.5 + rAntWave, antennaTopY - radius * 0.5,
+                radius * 0.35 + rAntWave * 1.5, antennaTopY - radius * 0.75);
+            ctx.stroke();
+
+            // 触角球
+            ctx.shadowColor = '#FFD93D';
+            ctx.shadowBlur = 8;
+            ctx.fillStyle = '#FFD93D';
+
+            ctx.beginPath();
+            ctx.arc(-radius * 0.45 + lAntWave * 1.5, antennaTopY - radius * 0.65, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(radius * 0.35 + rAntWave * 1.5, antennaTopY - radius * 0.75, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+
+            // ===== 小脚 =====
+            const legAnim = onGround ? Math.sin(frameCount * 0.15) * 3 : 0;
+            ctx.strokeStyle = '#E85555';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+
+            // 左脚
+            ctx.beginPath();
+            ctx.moveTo(-radius * 0.4, radius * 0.5);
+            ctx.lineTo(-radius * 0.55, radius * 0.85 + legAnim);
+            ctx.stroke();
+
+            // 右脚
+            ctx.beginPath();
+            ctx.moveTo(radius * 0.35, radius * 0.5);
+            ctx.lineTo(radius * 0.5, radius * 0.85 - legAnim);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // ========== 启动 ==========
+        window.addEventListener('load', () => {
+            init();
+        });
+    </script>
+</body>
+</html>

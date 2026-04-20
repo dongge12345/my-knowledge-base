@@ -1,0 +1,16 @@
+prefix_rule(
+    pattern = ["git", "add", "."],
+    decision = "allow",
+    justification = "Allow staging all workspace changes without prompting.",
+    match = ["git add ."],
+)
+
+prefix_rule(
+    pattern = ["git", "commit", "-m"],
+    decision = "allow",
+    justification = "Allow standard message-based commits without prompting.",
+    match = [
+        "git commit -m chore",
+        "git commit -m fix",
+    ],
+)

@@ -1,0 +1,5 @@
+# Playwright MCP artifacts
+**/.playwright-mcp
+
+# Local git worktrees created inside this repo
+day5_/.worktree/

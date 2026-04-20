@@ -45,3 +45,4 @@ nav:
   - 首页: index.md
   - 知识库总览: _generated/index.md
   - 部署说明: setup.md
+  - CI/CD 流程: ci-cd.md

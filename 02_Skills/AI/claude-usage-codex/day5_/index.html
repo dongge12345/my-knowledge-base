@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <script src="utils/monitor.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵眸 Pro - AI 智能摄像头 | 海康威视</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; line-height: 1.6; color: #333; }
+
+        /* 导航栏 */
+        header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: fixed; width: 100%; top: 0; z-index: 1000; }
+        nav { max-width: 1200px; margin: 0 auto; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #0066cc; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: #333; transition: color 0.3s; }
+        .nav-links a:hover { color: #0066cc; }
+
+        /* Hero 区域 */
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10rem 2rem 4rem; text-align: center; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.25rem; opacity: 0.9; max-width: 600px; margin: 0 auto 2rem; }
+        .cta-button { background: #fff; color: #667eea; padding: 1rem 3rem; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 1.1rem; transition: transform 0.3s; display: inline-block; }
+        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        /* 产品展示 */
+        .product-showcase { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .product-card { background: #f8f9fa; border-radius: 10px; overflow: hidden; transition: transform 0.3s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-image { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); height: 250px; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+        .product-info { padding: 1.5rem; }
+        .product-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .product-price { color: #ff6b6b; font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem; }
+        .buy-button { background: #0066cc; color: white; padding: 0.75rem 2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: background 0.3s; }
+        .buy-button:hover { background: #0052a3; }
+
+        /* 特性列表 */
+        .features { background: #fff; padding: 4rem 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 3rem; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .feature-item { text-align: center; padding: 2rem; }
+        .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .feature-title { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .feature-desc { color: #666; }
+
+        /* 规格参数 */
+        .specs { background: #f8f9fa; padding: 4rem 2rem; }
+        .spec-table { max-width: 800px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }
+        .spec-row { display: flex; padding: 1rem; border-bottom: 1px solid #eee; }
+        .spec-label { width: 40%; font-weight: bold; color: #555; }
+        .spec-value { width: 60%; color: #333; }
+
+        /* 页脚 */
+        footer { background: #333; color: white; padding: 3rem 2rem; text-align: center; }
+        footer a { color: #0066cc; text-decoration: none; }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav>
+            <div class="logo">海康威视 Hikvision</div>
+            <ul class="nav-links">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#products">产品中心</a></li>
+                <li><a href="#features">产品特点</a></li>
+                <li><a href="#specs">技术参数</a></li>
+                <li><a href="#contact">联系我们</a></li>
+                <li><a href="snake-game.html">贪吃蛇游戏</a></li>
+                <li><a href="jumping-bug-game.html">跳跳虫游戏</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero 区域 -->
+    <section class="hero" id="home">
+        <h1>灵眸 Pro AI 智能摄像头</h1>
+        <p>搭载最新 AI 芯片，支持人形识别、移动追踪、双向语音通话，让家的每一刻都安心守护。</p>
+        <a href="#products" class="cta-button">立即选购</a>
+    </section>
+
+    <!-- 产品系列 -->
+    <section class="product-showcase" id="products">
+        <h2 class="section-title">产品系列</h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-image">📷</div>
+                <div class="product-info">
+                    <h3 class="product-title">灵眸 Pro 标准版</h3>
+                    <p class="product-price">¥299</p>
+                    <button class="buy-button">立即购买</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">📷✨</div>
+                <div class="product-info">
+                    <h3 class="product-title">灵眸 Pro Max 云台版</h3>
+                    <p class="product-price">¥399</p>
+                    <button class="buy-button">立即购买</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">🏠🔒</div>
+                <div class="product-info">
+                    <h3 class="product-title">灵眸 Pro 户外防水版</h3>
+                    <p class="product-price">¥499</p>
+                    <button class="buy-button">立即购买</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产品特点 -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">核心功能特点</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">👁️</div>
+                    <h3 class="feature-title">2K 超高清画质</h3>
+                    <p class="feature-desc">400 万像素传感器，还原每一个细节</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI 智能识别</h3>
+                    <p class="feature-desc">精准识别人形/宠物，减少误报</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔄</div>
+                    <h3 class="feature-title">360°全景覆盖</h3>
+                    <p class="feature-desc">水平 355°+ 垂直 90°旋转监控</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🌙</div>
+                    <h3 class="feature-title">全彩夜视</h3>
+                    <p class="feature-desc">双补光灯，黑白/彩色夜视自由切换</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💬</div>
+                    <h3 class="feature-title">双向语音通话</h3>
+                    <p class="feature-desc">内置麦克风扬声器，随时沟通</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">☁️</div>
+                    <h3 class="feature-title">云端存储</h3>
+                    <p class="feature-desc">支持 MicroSD 卡及云存储服务</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技术参数 -->
+    <section class="specs" id="specs">
+        <div class="container">
+            <h2 class="section-title">技术规格参数</h2>
+            <div class="spec-table">
+                <div class="spec-row"><div class="spec-label">传感器</div><div class="spec-value">1/1.8" 400 万像素 CMOS</div></div>
+                <div class="spec-row"><div class="spec-label">分辨率</div><div class="spec-value">2560×1440 @ 20fps</div></div>
+                <div class="spec-row"><div class="spec-label">镜头</div><div class="spec-value">4mm 固定镜头，视角 105°</div></div>
+                <div class="spec-row"><div class="spec-label">夜视距离</div><div class="spec-value">最远 10 米全彩夜视</div></div>
+                <div class="spec-row"><div class="spec-label">无线网络</div><div class="spec-value">802.11 b/g/n/ac 2.4GHz/5GHz</div></div>
+                <div class="spec-row"><div class="spec-label">存储方式</div><div class="spec-value">MicroSD 卡（最高 256GB）</div></div>
+                <div class="spec-row"><div class="spec-label">工作温度</div><div class="spec-value">-10℃ ~ 50℃</div></div>
+                <div class="spec-row"><div class="spec-label">防护等级</div><div class="spec-value">IP66 防尘防水</div></div>
+                <div class="spec-row"><div class="spec-label">尺寸重量</div><div class="spec-value">98×98×120mm / 约 450g</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer id="contact">
+        <p>© 2026 海康威视 Digital Technology Co., Ltd. 版权所有</p>
+        <p style="margin-top: 1rem;">
+            <a href="#">隐私政策</a> |
+            <a href="#">服务条款</a> |
+            <a href="#">技术支持</a> |
+            <a href="#">产品中心</a>
+        </p>
+        <p style="margin-top: 1rem; color: #999;">客服热线：400-800-xxxxx</p>
+    </footer>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // 购买按钮点击事件
+        document.querySelectorAll('.buy-button').forEach(button => {
+            button.addEventListener('click', function() {
+                alert('即将跳转至购买页面，敬请期待！');
+            });
+        });
+
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+        });
+    </script>
+</body>
+</html>
